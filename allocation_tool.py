@@ -20,7 +20,7 @@ st.markdown(
     "This tool is designed to allow place, for allocation purposes, to be defined by aggregating GP Practices within an ICS. Please refer to the User Guide for instructions.")
 st.markdown("The Relative Need Index for ICS (i) and Defined Place (p) is given by the formula:")
 st.latex(r''' (WP_p/GP_p)\over (WP_i/GP_i)''')
-
+st.markdown("This tool utilises weighted populations calculated from the 2018/19 GP Registered Practice Populations")
 
 # Load data and cache
 @st.cache
@@ -59,7 +59,9 @@ practice_choice = st.sidebar.multiselect("Select practices", practices,
                                          help="Select GP Practices to aggregate into a single defined 'place'")
 place_name = st.text_input("Place Name", "Group 1", help="Give your defined place a name to identify it")
 
-left, middle, right = st.beta_columns(3)
+
+# Buttons that provide functionality 
+left, middle, right = st.columns(3)
 with left:
     if st.button("Calculate", help="Calculate allocations and relative need for places"):
         session_state.df = session_state.df.apply(round)
@@ -86,8 +88,12 @@ with middle:
         session_state.df = session_state.df.append(df_2)
         store_data().clear()
 with right:
-    if st.button("Reset", help="Reset the place selections and start again"):
+    if st.button("Reset", help="Reset the place selections and start again. Press a second time to restore Practice dropdown list"):
         session_state.df.drop(session_state.df.index[:], inplace=True)
         session_state.list.clear()
 
+# Write out dataframe
 st.write(session_state.df)
+
+# Temporary prototype notice
+st.markdown("PROTOTYPE UNDER DEVELOPMENT")
