@@ -81,8 +81,8 @@ with middle:
         place_key = list(new_place.keys())
         place_name = place_key[0]
         df_1 = data.query("Practice == @place_practices")
-        df_1["Place_Name"] = place_name
-        df_2 = df_1.groupby('Place_Name').agg(
+        df_1["Place Name"] = place_name
+        df_2 = df_1.groupby('Place Name').agg(
             {'GP_pop': 'sum', 'WP_G&A': 'sum', 'WP_CS': 'sum', 'WP_MH': 'sum', 'WP_Mat': 'sum', 'WP_HCHS': 'sum',
              'Target_inc_remote_£k': 'sum'})
         session_state.df = session_state.df.append(df_2)
@@ -94,6 +94,16 @@ with right:
 
 # Write out dataframe
 st.write(session_state.df)
+
+
+# Download functionality
+@st.cache
+def convert_df(df):
+    return df.to_csv().encode("utf-8")
+
+
+csv = convert_df(session_state.df)
+st.download_button(label="Download Output", data=csv, file_name="{ics} place based allocations.csv".format(ics=ics_choice), mime="text/csv")
 
 # Temporary prototype notice
 st.markdown("PROTOTYPE UNDER DEVELOPMENT")
