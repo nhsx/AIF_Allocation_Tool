@@ -4,11 +4,11 @@ import pandas as pd
 from PIL import Image
 import requests
 from io import BytesIO
-import SessionState
+import SessionState  # this is a script within the working directory
 
 # Download NHS Logo from an online source
 url = "https://www.digitalartsonline.co.uk/cmsdata/features/3655443/nhs-logo-opener.png"
-response = requests.get(url)
+response = requests.get(url)  # fetch NHS logo from URL
 img = Image.open(BytesIO(response.content))
 if img.mode != 'RGB':
     img = img.convert('RGB')
@@ -22,11 +22,12 @@ st.markdown("The Relative Need Index for ICS (i) and Defined Place (p) is given 
 st.latex(r''' (WP_p/GP_p)\over (WP_i/GP_i)''')
 st.markdown("This tool utilises weighted populations calculated from the 2018/19 GP Registered Practice Populations")
 
+
 # Load data and cache
-@st.cache
+@st.cache  # Use Streamlit cache decorator to cache this operation so data doesn't have to be read in everytime script is re-run
 def get_data():
-    path = "~/PycharmProjects/pythonProject3/gp_practice_weighted_population_by_ics v2.xlsx"
-    return pd.read_excel(path, 1, 0, usecols="F,H,J,L,M:AC")
+    path = "gp_practice_weighted_population_by_ics v2.xlsx"  # excel file containing the gp practice level data
+    return pd.read_excel(path, 1, 0, usecols="F,H,J,L,M:AC")  # Dataframe with specific columns that will be used
 
 
 # Store defined places in a list to access them later for place based calculations
@@ -39,29 +40,27 @@ def store_data():
 data = get_data()
 data = data.rename(columns={"STP21_42": "ICS", "GP practice name": "practice_name"})  # Rename some columns with more sensible names
 data["Practice"] = data["Practice"] + " " + ":" + " " + data["practice_name"]  # Concatenate practice name with practice code to ensure all practices are unique
-data = data.drop(["practice_name"], axis=1)  #
+data = data.drop(["practice_name"], axis=1)  # Remove practice name column which is not needed anymore
 
-# Session state initialisation and variables
-col_list = list(data.columns.to_list())
-col_list = col_list.append("Place_Name")
-output_df = pd.DataFrame(columns=col_list)
-session_state = SessionState.get(df=output_df, list=[])
+# Session state initialisation and variables, this ensures that everytime a user adds a place, the previous places remain.
+col_list = list(data.columns.to_list())  # create a list of columns exactly the same as those in the original data for the output df
+col_list = col_list.append("Place_Name")  # add a Place Name column which will be used to group practices by defined place
+output_df = pd.DataFrame(columns=col_list)  # initialise empty output dataframe with defined column names
+session_state = SessionState.get(df=output_df, list=[], places=[])  # initialise session state, empty df that will hold places and empty list that will hold assigned practices
 flat_list = [item for sublist in session_state.list for item in sublist]  # session state list is a list of lists so this unpacks them into one single flat list to use later
 
 # Drop downs for user manipulation/selection of data
-ics = data['ICS'].drop_duplicates()
-ics_choice = st.sidebar.selectbox("Select your ICS:", ics, help="Select an ICS")
-ccgs = list(data['CCG19'].loc[data['ICS'] == ics_choice])
-pcns = list(data['PCN_name'].loc[data['ICS'] == ics_choice])
-practices = list(data["Practice"].loc[data["ICS"] == ics_choice])
-practices = [x for x in practices if x not in flat_list]
+ics = data['ICS'].drop_duplicates()  # list of unique ICSs for dropdown list
+ics_choice = st.sidebar.selectbox("Select your ICS:", ics, help="Select an ICS")  # dropdown for selecting ICS
+practices = list(data["Practice"].loc[data["ICS"] == ics_choice])  # dynamic list of practices that changes based on selected ICS
+practices = [x for x in practices if x not in flat_list]  # this removes practices that have been assigned to a place from the practices dropdown list
 practice_choice = st.sidebar.multiselect("Select practices", practices,
-                                         help="Select GP Practices to aggregate into a single defined 'place'")
+                                         help="Select GP Practices to aggregate into a single defined 'place'")  # Dynamic practice dropdown
 place_name = st.text_input("Place Name", "Group 1", help="Give your defined place a name to identify it")
 
 
 # Buttons that provide functionality 
-left, middle, right = st.columns(3)
+left, middle, right = st.columns(3)  # set 3 buttons on the same line
 with left:
     if st.button("Calculate", help="Calculate allocations and relative need for places"):
         session_state.df = session_state.df.apply(round)
@@ -73,24 +72,27 @@ with left:
         session_state.df["HCHS_Index"] = (session_state.df["WP_HCHS"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 5])/(session_state.df.iloc[-1, 0]))
 with middle:
     if st.button("Save Place", help="Save the selected practices to the named place", key="output"):
-        store_data().append({place_name: practice_choice})
-        new_place = store_data()[0]
-        place_practices = list(new_place.values())
-        place_practices = place_practices[0]
-        session_state.list.append(place_practices)
-        place_key = list(new_place.keys())
-        place_name = place_key[0]
-        df_1 = data.query("Practice == @place_practices")
-        df_1["Place Name"] = place_name
+        store_data().append({place_name: practice_choice})  # append a dictionary to the cached list that has the place name as the key and a list of th
+        new_place = store_data()[0]  # Extract the dictionary from the list
+        session_state.places.append(new_place)  # Append the dictionary to a list that keeps track of practices in each place
+        place_practices = list(new_place.values())  # Assign the practices in the newly defined place to a list
+        place_practices = place_practices[0]  # place_practices is a list of lists so this turns it into a flat list
+        session_state.list.append(place_practices)  # Save the assigned practices to session state to remove them from the practice dropdown list
+        place_key = list(new_place.keys())  # Save place name to a list
+        place_name = place_key[0]  # Extract place name from the list
+        df_1 = data.query("Practice == @place_practices")  # Queries the original data and only returns the selected practices
+        df_1["Place Name"] = place_name  # adds the place name to the dataframe to allow it to be used for aggregation
         df_2 = df_1.groupby('Place Name').agg(
             {'GP_pop': 'sum', 'WP_G&A': 'sum', 'WP_CS': 'sum', 'WP_MH': 'sum', 'WP_Mat': 'sum', 'WP_HCHS': 'sum',
-             'Target_inc_remote_£k': 'sum'})
-        session_state.df = session_state.df.append(df_2)
-        store_data().clear()
+             'Target_inc_remote_£k': 'sum'})  # aggregates the practices to give the aggregated place values
+        df_2 = df_2.apply(round)
+        session_state.df = session_state.df.append(df_2)  # Add the aggregated place to session state
+        store_data().clear()  # clear the data store so that this process can be repeated for next place
 with right:
     if st.button("Reset", help="Reset the place selections and start again. Press a second time to restore Practice dropdown list"):
         session_state.df.drop(session_state.df.index[:], inplace=True)
         session_state.list.clear()
+        session_state.places.clear()
 
 # Write out dataframe
 st.write(session_state.df)
