@@ -64,7 +64,7 @@ left, middle, right = st.columns(3)  # set 3 buttons on the same line
 with left:
     if st.button("Calculate", help="Calculate allocations and relative need for places"):
         session_state.df = session_state.df.apply(round)
-        session_state.df = session_state.df.append(session_state.df.sum().rename('Total'))
+        session_state.df = session_state.df.append(session_state.df.sum().rename('{ics}'.format(ics=ics_choice)))
         session_state.df["G&A_Index"] = (session_state.df["WP_G&A"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 1])/(session_state.df.iloc[-1, 0]))
         session_state.df["CS_Index"] = (session_state.df["WP_CS"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 2])/(session_state.df.iloc[-1, 0]))
         session_state.df["MH_Index"] = (session_state.df["WP_MH"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 3])/(session_state.df.iloc[-1, 0]))
