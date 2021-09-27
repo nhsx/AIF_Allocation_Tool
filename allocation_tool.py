@@ -106,6 +106,3 @@ def convert_df(df):
 
 csv = convert_df(session_state.df)
 st.download_button(label="Download Output", data=csv, file_name="{ics} place based allocations.csv".format(ics=ics_choice), mime="text/csv")
-
-# Temporary prototype notice
-st.markdown("PROTOTYPE UNDER DEVELOPMENT")
