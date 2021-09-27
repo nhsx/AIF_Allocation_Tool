@@ -6,6 +6,10 @@ import requests
 from io import BytesIO
 import SessionState  # this is a script within the working directory
 
+# Temporary prototype notice
+st.markdown("PROTOTYPE UNDER DEVELOPMENT")
+
+
 # Download NHS Logo from an online source
 url = "https://www.digitalartsonline.co.uk/cmsdata/features/3655443/nhs-logo-opener.png"
 response = requests.get(url)  # fetch NHS logo from URL
@@ -106,3 +110,6 @@ def convert_df(df):
 
 csv = convert_df(session_state.df)
 st.download_button(label="Download Output", data=csv, file_name="{ics} place based allocations.csv".format(ics=ics_choice), mime="text/csv")
+
+# Temporary prototype notice
+st.markdown("PROTOTYPE UNDER DEVELOPMENT")
