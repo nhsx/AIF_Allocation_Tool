@@ -21,7 +21,7 @@ https://docs.streamlit.io/en/stable/
 
 ## Usage
 
-Full instructions for using the tool can be found in the user guide. The tool allows 'place' to be defined in an ICS as a cluster of GP practices. This allows place to be flexibly defined, whether that is as GP practices in the same Primary Care Network (PCN), Local Authority or that feed into the same Secondary services for example, that is at the discretion of the ICS. Once GP practices have been allocated to place, the relative need indices can be calculated and the output can be downloaded as a CSV. 
+Full instructions for using the tool can be found in the user guide. The tool allows 'place' to be defined in an ICS as a cluster of GP practices. This allows place to be flexibly defined, whether that is as GP practices in the same Primary Care Network (PCN), Local Authority or that feed into the same Secondary services for example, that is at the discretion of the ICS. Once GP practices have been allocated to place, the relative need indices can be calculated and the output can be downloaded as a CSV. The underlying data for the tool is pulled from the Excel workbook in the repository. When new allocations are calculated or updates are made to GP Practice populations, the tool can be updated by replacing this workbook with one containing the new data, ensuring to maintain the same file name.  
 
 ## Support 
 
