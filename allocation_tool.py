@@ -66,7 +66,7 @@ place_name = st.text_input("Place Name", "Group 1", help="Give your defined plac
 # Buttons that provide functionality 
 left, middle, right = st.columns(3)  # set 3 buttons on the same line
 with left:
-    if st.button("Calculate", help="Calculate allocations and relative need for places"):
+    if st.button("Calculate Need Indices", help="Calculate allocations and relative need for places"):
         session_state.df = session_state.df.apply(round)
         session_state.df = session_state.df.append(session_state.df.sum().rename('{ics}'.format(ics=ics_choice)))
         session_state.df["G&A_Index"] = (session_state.df["WP_G&A"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 1])/(session_state.df.iloc[-1, 0]))
