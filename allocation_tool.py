@@ -54,7 +54,8 @@ session_state = SessionState.get(df=output_df, list=[], places=[])  # initialise
 flat_list = [item for sublist in session_state.list for item in sublist]  # session state list is a list of lists so this unpacks them into one single flat list to use later
 
 # Drop downs for user manipulation/selection of data
-ics = data['ICS'].drop_duplicates()  # list of unique ICSs for dropdown list
+ics = data['ICS'].drop_duplicates()  # pandas series of unique ICSs for dropdown list
+ics = ics.sort_values()
 ics_choice = st.sidebar.selectbox("Select your ICS:", ics, help="Select an ICS")  # dropdown for selecting ICS
 practices = list(data["Practice"].loc[data["ICS"] == ics_choice])  # dynamic list of practices that changes based on selected ICS
 practices = [x for x in practices if x not in flat_list]  # this removes practices that have been assigned to a place from the practices dropdown list
