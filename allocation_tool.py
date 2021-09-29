@@ -55,7 +55,7 @@ flat_list = [item for sublist in session_state.list for item in sublist]  # sess
 
 # Drop downs for user manipulation/selection of data
 ics = data['ICS'].drop_duplicates()  # pandas series of unique ICSs for dropdown list
-ics = ics.sort_values()
+ics = ics.sort_values()  # sort ICSs in alphabetical order
 ics_choice = st.sidebar.selectbox("Select your ICS:", ics, help="Select an ICS")  # dropdown for selecting ICS
 practices = list(data["Practice"].loc[data["ICS"] == ics_choice])  # dynamic list of practices that changes based on selected ICS
 practices = [x for x in practices if x not in flat_list]  # this removes practices that have been assigned to a place from the practices dropdown list
