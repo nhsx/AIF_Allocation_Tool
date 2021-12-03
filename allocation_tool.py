@@ -71,9 +71,8 @@ with left:
         session_state.df["MH_Index"] = (session_state.df["WP_MH"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 3])/(session_state.df.iloc[-1, 0]))
         session_state.df["Mat_Index"] = (session_state.df["WP_Mat"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 4])/(session_state.df.iloc[-1, 0]))
         session_state.df["HCHS_Index"] = (session_state.df["WP_HCHS"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 5])/(session_state.df.iloc[-1, 0]))
-        session_state.df["EACA_Index"] = (session_state.df["EACA_index"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 7])/(session_state.df.iloc[-1, 0]))
         session_state.df["Presc_Index"] = (session_state.df["WP_Presc"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 10])/(session_state.df.iloc[-1, 0]))
-        session_state.df["SMR_Index"] = (session_state.df["WP_SMR"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 11])/(session_state.df.iloc[-1, 0]))
+        session_state.df["AM_Index"] = (session_state.df["WP_AM"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 11])/(session_state.df.iloc[-1, 0]))
         session_state.df["Overall_Index"] = (session_state.df["WP_Overall"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 14])/(session_state.df.iloc[-1, 0]))
 with middle:
     if st.button("Save Place", help="Save the selected practices to the named place", key="output"):
@@ -88,7 +87,7 @@ with middle:
         df_1 = data.query("Practice == @place_practices")  # Queries the original data and only returns the selected practices
         df_1["Place Name"] = place_name  # adds the place name to the dataframe to allow it to be used for aggregation
         df_2 = df_1.groupby('Place Name').agg(
-            {'GP_pop': 'sum', 'WP_G&A': 'sum', 'WP_CS': 'sum', 'WP_MH': 'sum', 'WP_Mat': 'sum', 'WP_HCHS': 'sum', 'EACA_index' : 'sum', "WP_Presc": 'sum', "WP_SMR": 'sum', "WP_Overall": "sum"})  # aggregates the practices to give the aggregated place values
+            {'GP_pop': 'sum', 'WP_G&A': 'sum', 'WP_CS': 'sum', 'WP_MH': 'sum', 'WP_Mat': 'sum', 'WP_HCHS': 'sum', 'EACA_index' : 'sum', "WP_Presc": 'sum', "WP_AM": 'sum', "WP_Overall": "sum"})  # aggregates the practices to give the aggregated place values
         df_2 = df_2.apply(round)
         session_state.df = session_state.df.append(df_2)  # Add the aggregated place to session state
         store_data().clear()  # clear the data store so that this process can be repeated for next place
