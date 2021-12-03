@@ -71,9 +71,9 @@ with left:
         session_state.df["MH_Index"] = (session_state.df["WP_MH"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 3])/(session_state.df.iloc[-1, 0]))
         session_state.df["Mat_Index"] = (session_state.df["WP_Mat"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 4])/(session_state.df.iloc[-1, 0]))
         session_state.df["HCHS_Index"] = (session_state.df["WP_HCHS"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 5])/(session_state.df.iloc[-1, 0]))
-        session_state.df["Presc_Index"] = (session_state.df["WP_Presc"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 10])/(session_state.df.iloc[-1, 0]))
-        session_state.df["AM_Index"] = (session_state.df["WP_AM"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 11])/(session_state.df.iloc[-1, 0]))
-        session_state.df["Overall_Index"] = (session_state.df["WP_Overall"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 14])/(session_state.df.iloc[-1, 0]))
+        session_state.df["Presc_Index"] = (session_state.df["WP_Presc"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 6])/(session_state.df.iloc[-1, 0]))
+        session_state.df["AM_Index"] = (session_state.df["WP_AM"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 7])/(session_state.df.iloc[-1, 0]))
+        session_state.df["Overall_Index"] = (session_state.df["WP_Overall"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 8])/(session_state.df.iloc[-1, 0]))
 with middle:
     if st.button("Save Place", help="Save the selected practices to the named place", key="output"):
         store_data().append({place_name: practice_choice})  # append a dictionary to the cached list that has the place name as the key and a list of th
