@@ -27,7 +27,7 @@ st.markdown("This tool utilises weighted populations calculated from the 2018/19
 # Load data and cache
 @st.cache  # Use Streamlit cache decorator to cache this operation so data doesn't have to be read in everytime script is re-run
 def get_data():
-    path = "gp_practice_weighted_population.xlsx"  # excel file containing the gp practice level data
+    path = "data/gp_practice_weighted_population.xlsx"  # excel file containing the gp practice level data
     return pd.read_excel(path, sheet_name ='GP practice WP by ICS', header = 0, usecols="F,L,M:AC")  # Dataframe with specific columns that will be used
 
 # Store defined places in a list to access them later for place based calculations
