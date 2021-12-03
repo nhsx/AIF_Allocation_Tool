@@ -66,14 +66,14 @@ with left:
     if st.button("Calculate Need Indices", help="Calculate relative need for defined places"):
         session_state.df = session_state.df.apply(round)
         session_state.df = session_state.df.append(session_state.df.sum().rename('{ics}'.format(ics=ics_choice)))
-        session_state.df["G&A_Index"] = (session_state.df["WP_G&A"]/session_state.df["GP_pop"])/((session_state.df["WP_G&A"].sum())/(session_state.df["GP_pop"].sum()))
-        session_state.df["CS_Index"] = (session_state.df["WP_CS"]/session_state.df["GP_pop"])/((session_state.df["WP_CS"].sum())/(session_state.df["GP_pop"].sum()))
-        session_state.df["MH_Index"] = (session_state.df["WP_MH"]/session_state.df["GP_pop"])/((session_state.df["WP_MH"].sum())/(session_state.df["GP_pop"].sum()))
-        session_state.df["Mat_Index"] = (session_state.df["WP_Mat"]/session_state.df["GP_pop"])/((session_state.df["WP_Mat"].sum())/(session_state.df["GP_pop"].sum()))
-        session_state.df["HCHS_Index"] = (session_state.df["WP_HCHS"]/session_state.df["GP_pop"])/((session_state.df["WP_HCHS"].sum())/(session_state.df["GP_pop"].sum()))
-        session_state.df["Presc_Index"] = (session_state.df["WP_Presc"]/session_state.df["GP_pop"])/((session_state.df["WP_Presc"].sum())/(session_state.df["GP_pop"].sum()))
-        session_state.df["AM_Index"] = (session_state.df["WP_AM"]/session_state.df["GP_pop"])/((session_state.df["WP_AM"].sum())/(session_state.df["GP_pop"].sum()))
-        session_state.df["Overall_Index"] = (session_state.df["WP_Overall"]/session_state.df["GP_pop"])/((session_state.df["WP_Overall"].sum())/(session_state.df["GP_pop"].sum()))
+        session_state.df["G&A_Index"] = (session_state.df["WP_G&A"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 1])/(session_state.df.iloc[-1, 0]))
+        session_state.df["CS_Index"] = (session_state.df["WP_CS"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 2])/(session_state.df.iloc[-1, 0]))
+        session_state.df["MH_Index"] = (session_state.df["WP_MH"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 3])/(session_state.df.iloc[-1, 0]))
+        session_state.df["Mat_Index"] = (session_state.df["WP_Mat"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 4])/(session_state.df.iloc[-1, 0]))
+        session_state.df["HCHS_Index"] = (session_state.df["WP_HCHS"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 5])/(session_state.df.iloc[-1, 0]))
+        session_state.df["Presc_Index"] = (session_state.df["WP_Presc"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 10])/(session_state.df.iloc[-1, 0]))
+        session_state.df["AM_Index"] = (session_state.df["WP_AM"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 11])/(session_state.df.iloc[-1, 0]))
+        session_state.df["Overall_Index"] = (session_state.df["WP_Overall"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 14])/(session_state.df.iloc[-1, 0]))
 with middle:
     if st.button("Save Place", help="Save the selected practices to the named place", key="output"):
         store_data().append({place_name: practice_choice})  # append a dictionary to the cached list that has the place name as the key and a list of th
