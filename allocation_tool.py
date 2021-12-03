@@ -10,10 +10,8 @@ import SessionState  # this is a script within the working directory
 st.markdown("PROTOTYPE UNDER DEVELOPMENT")
 
 
-# Download NHS Logo from an online source
-url = "https://www.digitalartsonline.co.uk/cmsdata/features/3655443/nhs-logo-opener.png"
-response = requests.get(url)  # fetch NHS logo from URL
-img = Image.open(BytesIO(response.content))
+# import NHS logo from repo
+img = Image.open("images/nhs_logo.png")
 if img.mode != 'RGB':
     img = img.convert('RGB')
 
@@ -30,7 +28,7 @@ st.markdown("This tool utilises weighted populations calculated from the 2018/19
 # Load data and cache
 @st.cache  # Use Streamlit cache decorator to cache this operation so data doesn't have to be read in everytime script is re-run
 def get_data():
-    path = "gp_practice_weighted_population.xlsx"  # excel file containing the gp practice level data
+    path = "data/gp_practice_weighted_population.xlsx"  # excel file containing the gp practice level data
     return pd.read_excel(path, 1, 0, usecols="F,H,J,L,M:AC")  # Dataframe with specific columns that will be used
 
 
