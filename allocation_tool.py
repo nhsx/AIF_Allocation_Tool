@@ -24,13 +24,11 @@ st.markdown("The Relative Need Index for ICS (i) and Defined Place (p) is given 
 st.latex(r''' (WP_p/GP_p)\over (WP_i/GP_i)''')
 st.markdown("This tool utilises weighted populations calculated from the 2018/19 GP Registered Practice Populations")
 
-
 # Load data and cache
 @st.cache  # Use Streamlit cache decorator to cache this operation so data doesn't have to be read in everytime script is re-run
 def get_data():
-    path = "data/gp_practice_weighted_population.xlsx"  # excel file containing the gp practice level data
-    return pd.read_excel(path, sheet_name ='GP practice WP by ICS', header = 0 , usecols="F:H,I:V")  # Dataframe with specific columns that will be used
-
+    path = "gp_practice_weighted_population.xlsx"  # excel file containing the gp practice level data
+    return pd.read_excel(path, sheet_name ='GP practice WP by ICS', header = 0, usecols="F,L,M:AC")  # Dataframe with specific columns that will be used
 
 # Store defined places in a list to access them later for place based calculations
 @st.cache(allow_output_mutation=True)
@@ -40,7 +38,7 @@ def store_data():
 
 # Manipulate loaded dataframe
 data = get_data()
-data = data.rename(columns={"STP21_42": "ICS", "GP_practice_name": "practice_name"})  # Rename some columns with more sensible names
+data = data.rename(columns={"STP21_42": "ICS", "GP practice name": "practice_name"})  # Rename some columns with more sensible names
 data["Practice"] = data["Practice"] + " " + ":" + " " + data["practice_name"]  # Concatenate practice name with practice code to ensure all practices are unique
 data = data.drop(["practice_name"], axis=1)  # Remove practice name column which is not needed anymore
 
@@ -73,9 +71,10 @@ with left:
         session_state.df["MH_Index"] = (session_state.df["WP_MH"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 3])/(session_state.df.iloc[-1, 0]))
         session_state.df["Mat_Index"] = (session_state.df["WP_Mat"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 4])/(session_state.df.iloc[-1, 0]))
         session_state.df["HCHS_Index"] = (session_state.df["WP_HCHS"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 5])/(session_state.df.iloc[-1, 0]))
-
-
-
+        session_state.df["EACA_Index"] = (session_state.df["EACA_index"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 7])/(session_state.df.iloc[-1, 0]))
+        session_state.df["Presc_Index"] = (session_state.df["WP_Presc"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 10])/(session_state.df.iloc[-1, 0]))
+        session_state.df["SMR_Index"] = (session_state.df["WP_SMR"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 11])/(session_state.df.iloc[-1, 0]))
+        session_state.df["Overall_Index"] = (session_state.df["WP_Overall"]/session_state.df["GP_pop"])/((session_state.df.iloc[-1, 14])/(session_state.df.iloc[-1, 0]))
 with middle:
     if st.button("Save Place", help="Save the selected practices to the named place", key="output"):
         store_data().append({place_name: practice_choice})  # append a dictionary to the cached list that has the place name as the key and a list of th
@@ -89,7 +88,7 @@ with middle:
         df_1 = data.query("Practice == @place_practices")  # Queries the original data and only returns the selected practices
         df_1["Place Name"] = place_name  # adds the place name to the dataframe to allow it to be used for aggregation
         df_2 = df_1.groupby('Place Name').agg(
-            {'GP_pop': 'sum', 'WP_G&A': 'sum', 'WP_CS': 'sum', 'WP_MH': 'sum', 'WP_Mat': 'sum', 'WP_HCHS': 'sum'})  # aggregates the practices to give the aggregated place values
+            {'GP_pop': 'sum', 'WP_G&A': 'sum', 'WP_CS': 'sum', 'WP_MH': 'sum', 'WP_Mat': 'sum', 'WP_HCHS': 'sum', 'EACA_index' : 'sum', "WP_Presc": 'sum', "WP_SMR": 'sum', "WP_Overall": "sum"})  # aggregates the practices to give the aggregated place values
         df_2 = df_2.apply(round)
         session_state.df = session_state.df.append(df_2)  # Add the aggregated place to session state
         store_data().clear()  # clear the data store so that this process can be repeated for next place
