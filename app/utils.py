@@ -50,9 +50,10 @@ def store_data():
 # Sidebar dropdown list
 @st.cache
 def get_sidebar(data):
-    ics = data["ICS"].unique().tolist()
+    ics = data["ICS name"].unique().tolist()
     return ics
 
 
 def write_table(data):
     return AgGrid(data)
+
