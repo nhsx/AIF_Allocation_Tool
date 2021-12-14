@@ -158,6 +158,46 @@ if st.sidebar.button("Reset Group", key="output"):
     del st.session_state[place_name]
     st.session_state.places = st.session_state.places
 
+session_state_dict = dict.fromkeys(st.session_state.places, [])
+for key, value in session_state_dict.items():
+    session_state_dict[key] = st.session_state[key]
+session_state_dict["places"] = st.session_state.places
+# st.write(session_state_dict)
+
+session_state_dump = json.dumps(session_state_dict, indent=4, sort_keys=True)
+
+# st.subheader("Group Metrics", anchor=None)
+st.sidebar.markdown(
+    """<hr style="height:1px;border:none;color:#333;background-color:#333;" /> """,
+    unsafe_allow_html=True,
+)
+# Use file uploaded to read in groups of practices
+advanced_options = st.sidebar.checkbox("Advanced Options")
+if advanced_options:
+    # downloads
+    st.sidebar.download_button(
+        label="Download session data as JSON",
+        data=session_state_dump,
+        file_name="session.json",
+        mime="text/json",
+    )
+    # uploads
+    form = st.sidebar.form(key="my-form")
+    group_file = form.file_uploader(
+        "Upload previous session data as JSON", type=["json"]
+    )
+    submit = form.form_submit_button("Submit")
+    if submit:
+        if group_file is not None:
+            my_bar = st.progress(0)
+            for percent_complete in range(100):
+                time.sleep(0.01)
+                my_bar.progress(percent_complete + 1)
+            d = json.load(group_file)
+            st.session_state.places = d["places"]
+            for place in d["places"]:
+                st.session_state[place] = d[place]
+
 # BODY
 # -----------------------------------------------------
 option = st.selectbox("Selected Place", (st.session_state.places))
@@ -270,46 +310,6 @@ with AM:
     st.metric(
         "AM Index", place_metric, ics_metric, delta_color="normal",
     )
-
-session_state_dict = dict.fromkeys(st.session_state.places, [])
-for key, value in session_state_dict.items():
-    session_state_dict[key] = st.session_state[key]
-session_state_dict["places"] = st.session_state.places
-# st.write(session_state_dict)
-
-session_state_dump = json.dumps(session_state_dict, indent=4, sort_keys=True)
-
-# st.subheader("Group Metrics", anchor=None)
-st.sidebar.markdown(
-    """<hr style="height:1px;border:none;color:#333;background-color:#333;" /> """,
-    unsafe_allow_html=True,
-)
-# Use file uploaded to read in groups of practices
-advanced_options = st.sidebar.checkbox("Advanced Options")
-if advanced_options:
-    # downloads
-    st.sidebar.download_button(
-        label="Download session data as JSON",
-        data=session_state_dump,
-        file_name="session.json",
-        mime="text/json",
-    )
-    # uploads
-    form = st.sidebar.form(key="my-form")
-    group_file = form.file_uploader(
-        "Upload previous session data as JSON", type=["json"]
-    )
-    submit = form.form_submit_button("Submit")
-    if submit:
-        if group_file is not None:
-            my_bar = st.progress(0)
-            for percent_complete in range(100):
-                time.sleep(0.01)
-                my_bar.progress(percent_complete + 1)
-            d = json.load(group_file)
-            st.session_state.places = d["places"]
-            for place in d["places"]:
-                st.session_state[place] = d[place]
 
 print_table = st.checkbox("Show Dataframe")
 if print_table:
