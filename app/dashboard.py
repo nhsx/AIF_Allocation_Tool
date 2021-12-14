@@ -221,10 +221,10 @@ if advanced_options:
             for place in d["places"]:
                 st.session_state[place] = d[place]
 
-    debug = st.sidebar.checkbox("Show Session State")
-    if debug:
-        st.markdown("DEBUGGING")
-        st.session_state
+debug = st.sidebar.checkbox("Show Session State")
+if debug:
+    st.markdown("DEBUGGING")
+    st.session_state
 
 
 # BODY
