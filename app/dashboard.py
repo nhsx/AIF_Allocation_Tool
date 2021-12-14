@@ -16,9 +16,10 @@ VERSION:        0.0.2
 
 # Libraries
 # -------------------------------------------------------------------------
-
+# python
 import json
 import time
+import base64
 
 # 3rd party:
 import streamlit as st
@@ -59,6 +60,19 @@ def get_index(place_indices, ics_indices, index_names, index_numerator):
         .div(ics_indices[index_names].values, axis=0)
     )
     return place_indices, ics_indices
+
+
+def render_svg(svg):
+    """Renders the given svg string."""
+    b64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
+    html = r'<img src="data:image/svg+xml;base64,%s"/>' % b64
+    st.write(html, unsafe_allow_html=True)
+
+
+# Download functionality
+@st.cache
+def convert_df(df):
+    return df.to_csv(index=False).encode("utf-8")
 
 
 aggregations = {
@@ -108,19 +122,31 @@ ics_query = "`ICS name` == @ics_choice"  # escape column names with backticks ht
 
 # Markdown
 # -----------------------------------------------------
-st.markdown("PROTOTYPE UNDER DEVELOPMENT - Last Updated 9th December 2021")
-# st.image("../images/nhs_logo.png", caption=None, width=100)
+st.markdown("PROTOTYPE UNDER DEVELOPMENT - Last Updated 14th December 2021")
+
+# NHS Logo
+svg = """
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 16">
+            <path d="M0 0h40v16H0z" fill="#005EB8"></path>
+            <path d="M3.9 1.5h4.4l2.6 9h.1l1.8-9h3.3l-2.8 13H9l-2.7-9h-.1l-1.8 9H1.1M17.3 1.5h3.6l-1 4.9h4L25 1.5h3.5l-2.7 13h-3.5l1.1-5.6h-4.1l-1.2 5.6h-3.4M37.7 4.4c-.7-.3-1.6-.6-2.9-.6-1.4 0-2.5.2-2.5 1.3 0 1.8 5.1 1.2 5.1 5.1 0 3.6-3.3 4.5-6.4 4.5-1.3 0-2.9-.3-4-.7l.8-2.7c.7.4 2.1.7 3.2.7s2.8-.2 2.8-1.5c0-2.1-5.1-1.3-5.1-5 0-3.4 2.9-4.4 5.8-4.4 1.6 0 3.1.2 4 .6" fill="white"></path>
+          </svg>
+"""
+render_svg(svg)
+
 st.title("ICS Place Based Allocation Tool")
-st.markdown(
-    "This tool is designed to allow place, for allocation purposes, to be defined by aggregating GP Practices within an ICS. Please refer to the User Guide for instructions."
-)
-st.markdown(
-    "The Relative Need Index for ICS (i) and Defined Place (p) is given by the formula:"
-)
-st.latex(r""" (WP_p/GP_p)\over (WP_i/GP_i)""")
-st.markdown(
-    "This tool utilises weighted populations calculated from the 2018/19 GP Registered Practice Populations"
-)
+
+instructions = st.checkbox("Show Instructions")
+if instructions:
+    st.markdown(
+        "This tool is designed to allow place, for allocation purposes, to be defined by aggregating GP Practices within an ICS. Please refer to the User Guide for instructions."
+    )
+    st.markdown(
+        "The Relative Need Index for ICS (i) and Defined Place (p) is given by the formula:"
+    )
+    st.latex(r""" (WP_p/GP_p)\over (WP_i/GP_i)""")
+    st.markdown(
+        "This tool utilises weighted populations calculated from the 2018/19 GP Registered Practice Populations"
+    )
 
 # Import Data
 # -----------------------------------------------------
@@ -166,11 +192,8 @@ session_state_dict["places"] = st.session_state.places
 
 session_state_dump = json.dumps(session_state_dict, indent=4, sort_keys=True)
 
-# st.subheader("Group Metrics", anchor=None)
-st.sidebar.markdown(
-    """<hr style="height:1px;border:none;color:#333;background-color:#333;" /> """,
-    unsafe_allow_html=True,
-)
+st.sidebar.write("-" * 34)  # horizontal separator line.
+
 # Use file uploaded to read in groups of practices
 advanced_options = st.sidebar.checkbox("Advanced Options")
 if advanced_options:
@@ -198,12 +221,19 @@ if advanced_options:
             for place in d["places"]:
                 st.session_state[place] = d[place]
 
+    debug = st.sidebar.checkbox("Show Session State")
+    if debug:
+        st.markdown("DEBUGGING")
+        st.session_state
+
+
 # BODY
 # -----------------------------------------------------
-option = st.selectbox("Selected Place", (st.session_state.places))
+option = st.selectbox("Select Group", (st.session_state.places))
 
 st.info("**Selected GP Practices: **" + str(st.session_state[option]))
 
+st.subheader("Group Metrics")
 st.write(
     "KPIs shows the Need Indices of **",
     option,
@@ -311,13 +341,17 @@ with AM:
         "AM Index", place_metric, ics_metric, delta_color="normal",
     )
 
-print_table = st.checkbox("Show Dataframe")
+st.subheader("Downloads")
+
+print_table = st.checkbox("Preview data download")
 if print_table:
     with st.container():
         utils.write_table(df_print)
 
-# Debugging
-debug = st.checkbox("Show Session State")
-if debug:
-    st.markdown("DEBUGGING")
-    st.session_state
+csv = convert_df(df_print)
+st.download_button(
+    label="Download {place} data as CSV".format(place=option),
+    data=csv,
+    file_name="{place} place based allocations.csv".format(place=option),
+    mime="text/csv",
+)
