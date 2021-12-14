@@ -2,7 +2,6 @@ import streamlit as st
 from st_aggrid import AgGrid
 
 import pandas as pd
-import numpy as np
 
 # Load data and cache
 @st.cache  # use Streamlit cache decorator to cache this operation so data doesn't have to be read in everytime script is re-run

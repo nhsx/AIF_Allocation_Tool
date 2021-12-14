@@ -20,20 +20,23 @@ VERSION:        0.0.2
 import json
 import time
 import base64
+import utils
 
 # 3rd party:
 import streamlit as st
 import pandas as pd
-import utils
 
 # Set default place in session
 # -----------------------------------------------------
 if "Group 1" not in st.session_state:
-    st.session_state["Group 1"] = [
-        "A83005: Whinfield Medical Practice",
-        "A83013: Neasham Road Surgery",
-        "A83034: Blacketts Medical Practice",
-    ]
+    st.session_state["Group 1"] = {
+        "gps": [
+            "A83005: Whinfield Medical Practice",
+            "A83013: Neasham Road Surgery",
+            "A83034: Blacketts Medical Practice",
+        ],
+        "ics": "Cumbria and North East",
+    }
 if "places" not in st.session_state:
     st.session_state.places = ["Group 1"]
 
@@ -117,8 +120,8 @@ index_names = [
     "Overall Index",
 ]
 
-gp_query = "practice_display == @place_practices"
-ics_query = "`ICS name` == @ics_choice"  # escape column names with backticks https://stackoverflow.com/a/56157729
+gp_query = "practice_display == @place_state"
+ics_query = "`ICS name` == @ics_state"  # escape column names with backticks https://stackoverflow.com/a/56157729
 
 # Markdown
 # -----------------------------------------------------
@@ -172,25 +175,24 @@ practice_choice = st.sidebar.multiselect(
 place_name = st.sidebar.text_input(
     "Name your Group", "Group 1", help="Give your defined place a name to identify it"
 )
-if st.sidebar.button("Save Group", help="s", key="output",):
+if st.sidebar.button("Save Group", help="Save group to session state", key="output",):
     if [place_name] not in st.session_state:
-        st.session_state[place_name] = practice_choice
+        st.session_state[place_name] = {"gps": practice_choice, "ics": ics_choice}
     if "places" not in st.session_state:
-        st.session_state.places = {place_name: ics_choice}
+        st.session_state.places = [place_name]
     if place_name not in st.session_state.places:
         st.session_state.places = st.session_state.places + [place_name]
 
-if st.sidebar.button("Reset Group", key="output"):
-    del st.session_state[place_name]
-    st.session_state.places = st.session_state.places
+# if st.sidebar.button("Reset Group", key="output"):
+#    del st.session_state[place_name]
+#    st.session_state.places = st.session_state.places
 
 session_state_dict = dict.fromkeys(st.session_state.places, [])
 for key, value in session_state_dict.items():
     session_state_dict[key] = st.session_state[key]
 session_state_dict["places"] = st.session_state.places
-# st.write(session_state_dict)
 
-session_state_dump = json.dumps(session_state_dict, indent=4, sort_keys=True)
+session_state_dump = json.dumps(session_state_dict, indent=4, sort_keys=False)
 
 st.sidebar.write("-" * 34)  # horizontal separator line.
 
@@ -231,34 +233,37 @@ if debug:
 # -----------------------------------------------------
 option = st.selectbox("Select Group", (st.session_state.places))
 
-st.info("**Selected GP Practices: **" + str(st.session_state[option]))
+st.info("**Selected GP Practices: **" + str(st.session_state[option]["gps"]))
 
 st.subheader("Group Metrics")
 st.write(
     "KPIs shows the Need Indices of **",
     option,
     "** compared to the **",
-    ics_choice,
+    st.session_state[option]["ics"],
     " ICS** average",
 )
 
-place_practices = st.session_state[option]
+# Write session state values to query vars
+place_state = st.session_state[option]["gps"]
+ics_state = st.session_state[option]["ics"]
+
 # get place aggregations
 place_query, place_indices = aggregate(
     data, gp_query, option, "Place Name", aggregations
 )
 
 # get ICS aggregations
-ics_query, ics_indices = aggregate(
-    data, ics_query, ics_choice, "ICS name", aggregations
+ics_query1, ics_indices = aggregate(
+    data, ics_query, st.session_state[option]["ics"], "ICS name", aggregations
 )
+
 # index calcs
 place_indices1, ics_indices1 = get_index(
     place_indices, ics_indices, index_names, index_numerator
 )
-
 # print all data
-ics_indices1.insert(loc=0, column="Group / ICS", value=ics_choice)
+ics_indices1.insert(loc=0, column="Group / ICS", value=st.session_state[option]["ics"])
 place_indices1.insert(loc=0, column="Group / ICS", value=option)
 df_print = pd.concat(
     [ics_indices1, place_indices1], axis=0, join="inner", ignore_index=True
