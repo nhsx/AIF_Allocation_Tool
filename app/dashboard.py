@@ -117,7 +117,7 @@ ics_query = "`ICS name` == @ics_state"  # escape column names with backticks htt
 
 # Markdown
 # -----------------------------------------------------
-st.markdown("PROTOTYPE UNDER DEVELOPMENT - Last Updated 14th December 2021")
+st.markdown("PROTOTYPE UNDER DEVELOPMENT - Last Updated 15th December 2021")
 
 # NHS Logo
 svg = """
@@ -149,12 +149,13 @@ ics = utils.get_sidebar(data)
 
 # SIDEBAR
 # -----------------------------------------------------
-ics_choice = st.sidebar.selectbox("Select your ICS:", ics, help="Select an ICS")
-lad_filter = st.sidebar.checkbox("Filter by LAD")
+st.sidebar.subheader("Create New Group")
+ics_choice = st.sidebar.selectbox("ICS Filter:", ics, help="Select an ICS")
+lad_filter = st.sidebar.checkbox("Filter by LA District")
 if lad_filter:
     lad = data["LA District name"].loc[data["ICS name"] == ics_choice].unique().tolist()
     lad_choice = st.sidebar.selectbox(
-        "Select your LA District:", lad, help="Select a LA District"
+        "LA District Filter:", lad, help="Select a LA District"
     )
     practices = list(
         data["practice_display"].loc[data["LA District name"] == lad_choice]
@@ -163,7 +164,7 @@ else:
     practices = list(data["practice_display"].loc[data["ICS name"] == ics_choice])
 
 practice_choice = st.sidebar.multiselect(
-    "Select practices",
+    "Select GP Practices:",
     practices,
     help="Select GP Practices to aggregate into a single defined 'place'",
 )
