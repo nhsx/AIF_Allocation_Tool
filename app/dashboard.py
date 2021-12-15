@@ -130,8 +130,7 @@ render_svg(svg)
 
 st.title("ICS Place Based Allocation Tool")
 
-instructions = st.checkbox("Show Instructions")
-if instructions:
+with st.expander("See Instructions"):
     st.markdown(
         "This tool is designed to allow place, for allocation purposes, to be defined by aggregating GP Practices within an ICS. Please refer to the User Guide for instructions."
     )
