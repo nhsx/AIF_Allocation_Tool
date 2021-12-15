@@ -31,11 +31,11 @@ import pandas as pd
 if "Group 1" not in st.session_state:
     st.session_state["Group 1"] = {
         "gps": [
-            "A83005: Whinfield Medical Practice",
-            "A83013: Neasham Road Surgery",
-            "A83034: Blacketts Medical Practice",
+            "J81083: Sixpenny Handley Surgery",
+            "J83001: Merchiston Surgery",
+            "J83002: Westrop Medical Practice",
         ],
-        "ics": "Cumbria and North East",
+        "ics": "NHS Bath and North East Somerset, Swindon and Wiltshire ICB",
     }
 if "places" not in st.session_state:
     st.session_state.places = ["Group 1"]
@@ -85,12 +85,8 @@ aggregations = {
     "Weighted Mental Health pop": "sum",
     "Weighted Maternity pop": "sum",
     "Weighted HCHS pop": "sum",
-    "Weighted Market Forces Factor pop": "sum",
-    "Weighted EACA pop": "sum",
     "Weighted Prescribing pop": "sum",
     "Weighted AM pop": "sum",
-    "Target exc remote (£k)": "sum",
-    "Target inc remote (£k)": "sum",
     "Overall Weighted pop": "sum",
 }
 
@@ -100,8 +96,6 @@ index_numerator = [
     "Weighted Mental Health pop",
     "Weighted Maternity pop",
     "Weighted HCHS pop",
-    "Weighted Market Forces Factor pop",
-    "Weighted EACA pop",
     "Weighted Prescribing pop",
     "Weighted AM pop",
     "Overall Weighted pop",
@@ -113,8 +107,6 @@ index_names = [
     "Mental Health Index",
     "Maternity Index",
     "HCHS Index",
-    "Market Forces Factor Index",
-    "EACA Index",
     "Prescribing Index",
     "AM Index",
     "Overall Index",
@@ -159,11 +151,15 @@ ics = utils.get_sidebar(data)
 # SIDEBAR
 # -----------------------------------------------------
 ics_choice = st.sidebar.selectbox("Select your ICS:", ics, help="Select an ICS")
-ccg_filter = st.sidebar.checkbox("Filter by CCG")
-if ccg_filter:
-    ccg = data["CCG name"].loc[data["ICS name"] == ics_choice].unique().tolist()
-    ccg_choice = st.sidebar.selectbox("Select your CCG:", ccg, help="Select a CCG")
-    practices = list(data["practice_display"].loc[data["CCG name"] == ccg_choice])
+lad_filter = st.sidebar.checkbox("Filter by LAD")
+if lad_filter:
+    lad = data["LA District name"].loc[data["ICS name"] == ics_choice].unique().tolist()
+    lad_choice = st.sidebar.selectbox(
+        "Select your LA District:", lad, help="Select a LA District"
+    )
+    practices = list(
+        data["practice_display"].loc[data["LA District name"] == lad_choice]
+    )
 else:
     practices = list(data["practice_display"].loc[data["ICS name"] == ics_choice])
 
@@ -214,7 +210,7 @@ if advanced_options:
     submit = form.form_submit_button("Submit")
     if submit:
         if group_file is not None:
-            my_bar = st.progress(0)
+            my_bar = st.sidebar.progress(0)
             for percent_complete in range(100):
                 time.sleep(0.01)
                 my_bar.progress(percent_complete + 1)
@@ -224,9 +220,6 @@ if advanced_options:
                 st.session_state[place] = d[place]
 
 debug = st.sidebar.checkbox("Show Session State")
-if debug:
-    st.markdown("DEBUGGING")
-    st.session_state
 
 
 # BODY
@@ -308,28 +301,12 @@ with Maternity:
         "Maternity", place_metric, ics_metric, delta_color="normal",
     )
 # add these
-(HCHS, MarketForcesFactor, EACA, Prescribing, AM) = st.columns(5)
+(HCHS, Prescribing, AM, blank1, blank2) = st.columns(5)
 with HCHS:
     place_metric = round(place_indices1["HCHS Index"][0].astype(float), 3)
     ics_metric = round(ics_indices1["HCHS Index"][0].astype(float) - place_metric, 3)
     st.metric(
         "HCHS", place_metric, ics_metric, delta_color="normal",
-    )
-with MarketForcesFactor:
-    place_metric = round(
-        place_indices1["Market Forces Factor Index"][0].astype(float), 3
-    )
-    ics_metric = round(
-        ics_indices1["Market Forces Factor Index"][0].astype(float) - place_metric, 3
-    )
-    st.metric(
-        "Market Forces Factor", place_metric, ics_metric, delta_color="normal",
-    )
-with EACA:
-    place_metric = round(place_indices1["EACA Index"][0].astype(float), 3)
-    ics_metric = round(ics_indices1["EACA Index"][0].astype(float) - place_metric, 3)
-    st.metric(
-        "EACA", place_metric, ics_metric, delta_color="normal",
     )
 with Prescribing:
     place_metric = round(place_indices1["Prescribing Index"][0].astype(float), 3)
@@ -360,3 +337,7 @@ st.download_button(
     file_name="{place} place based allocations.csv".format(place=option),
     mime="text/csv",
 )
+
+if debug:
+    st.markdown("DEBUGGING")
+    st.session_state

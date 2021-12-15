@@ -6,37 +6,23 @@ import pandas as pd
 # Load data and cache
 @st.cache  # use Streamlit cache decorator to cache this operation so data doesn't have to be read in everytime script is re-run
 def get_data():
-    path = "../data/wp_data.csv"  # file containing the gp practice weighted populations
+    path = "../data/wp_data_2022LAD.csv"  # file containing the gp practice weighted populations
     df = pd.read_csv(path)
     df = df.rename(
         columns={
-            "R21": "Region ODS code",
-            "Region21_7": "Region name",
-            "STP21": "ICS ODS code",
-            "STP21ons": "ICS ONS code",
-            "STP21_42": "ICS name",
-            "CCG": "CCG ODS code",
-            "CCG19": "CCG name",
-            "PCN": "PCN ODS code",
-            "PCN_name": "PCN code",
-            "Practice": "GP practice code",
-            "GP practice name": "GP practice name",
             "GP_pop": "GP pop",
             "WP_G&A": "Weighted G&A pop",
             "WP_CS": "Weighted Community pop",
             "WP_MH": "Weighted Mental Health pop",
             "WP_Mat": "Weighted Maternity pop",
             "WP_HCHS": "Weighted HCHS pop",
-            "WP_MFF": "Weighted Market Forces Factor pop",
-            "WP_EACA": "Weighted EACA pop",
             "WP_Presc": "Weighted Prescribing pop",
+            "WP_HI": "Weighted HI pop",
             "WP_AM": "Weighted AM pop",
-            "Target_exc_remote_£k": "Target exc remote (£k)",
-            "Target_inc_remote_£k": "Target inc remote (£k)",
             "WP_Overall": "Overall Weighted pop",
         }
     )
-    df["practice_display"] = df["GP practice code"] + ": " + df["GP practice name"]
+    df["practice_display"] = df["GP Practice code"] + ": " + df["GP Practice name"]
     return df
 
 
@@ -50,6 +36,7 @@ def store_data():
 @st.cache
 def get_sidebar(data):
     ics = data["ICS name"].unique().tolist()
+    ics.sort()
     return ics
 
 
