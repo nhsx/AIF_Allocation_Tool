@@ -152,11 +152,11 @@ ics = utils.get_sidebar(data)
 # -----------------------------------------------------
 st.sidebar.subheader("Create New Group")
 ics_choice = st.sidebar.selectbox("ICS Filter:", ics, help="Select an ICS")
-lad_filter = st.sidebar.checkbox("Filter by LA District")
+lad_filter = st.sidebar.checkbox("Filter by Local Authority District")
 if lad_filter:
     lad = data["LA District name"].loc[data["ICS name"] == ics_choice].unique().tolist()
     lad_choice = st.sidebar.selectbox(
-        "LA District Filter:", lad, help="Select a LA District"
+        "LA District Filter:", lad, help="Select a Local Authority District"
     )
     practices = list(
         data["practice_display"].loc[data["LA District name"] == lad_choice]
