@@ -27,7 +27,7 @@ import streamlit as st
 import pandas as pd
 
 # Set default place in session
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 if "Group 1" not in st.session_state:
     st.session_state["Group 1"] = {
         "gps": [
@@ -119,7 +119,7 @@ gp_query = "practice_display == @place_state"
 ics_query = "`ICS name` == @ics_state"  # escape column names with backticks https://stackoverflow.com/a/56157729
 
 # Markdown
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 # NHS Logo
 svg = """
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 16">
@@ -144,12 +144,12 @@ with st.expander("See Instructions"):
     )
 
 # Import Data
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 data = utils.get_data()
 ics = utils.get_sidebar(data)
 
 # SIDEBAR
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 st.sidebar.subheader("Create New Group")
 ics_choice = st.sidebar.selectbox("ICS Filter:", ics, help="Select an ICS")
 lad_filter = st.sidebar.checkbox("Filter by Local Authority District")
@@ -226,7 +226,7 @@ debug = st.sidebar.checkbox("Show Session State")
 
 
 # BODY
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 option = st.selectbox("Select Group", (st.session_state.places))
 
 st.info("**Selected GP Practices: **" + str(st.session_state[option]["gps"]))
@@ -265,6 +265,8 @@ df_print = pd.concat(
     [ics_indices1, place_indices1], axis=0, join="inner", ignore_index=True
 )
 
+# Metrics
+# -------------------------------------------------------------------------
 # tbd: Loop this
 (Overall, GA, Community, MentalHealth, Maternity) = st.columns(5)
 with Overall:
@@ -297,8 +299,8 @@ with Maternity:
     st.metric(
         "Maternity", place_metric, ics_metric, delta_color="inverse",
     )
-# add these
-(HCHS, Prescribing, HI, AM, blank3) = st.columns(5)
+
+(HCHS, Prescribing, HI, AM, blank) = st.columns(5)
 with HCHS:
     place_metric = round(place_indices1["HCHS Index"][0].astype(float), 3)
     ics_metric = round(place_metric - 1, 3)
