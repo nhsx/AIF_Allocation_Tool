@@ -173,6 +173,8 @@ place_name = st.sidebar.text_input(
     "Name your Group", "Group 1", help="Give your defined place a name to identify it"
 )
 if st.sidebar.button("Save Group", help="Save group to session state", key="output",):
+    # add dataframe to session state here
+
     if [place_name] not in st.session_state:
         st.session_state[place_name] = {"gps": practice_choice, "ics": ics_choice}
     if "places" not in st.session_state:
