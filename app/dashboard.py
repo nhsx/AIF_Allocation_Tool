@@ -275,13 +275,13 @@ with Overall:
     place_metric = round(place_indices1["Overall Index"][0].astype(float), 3)
     ics_metric = round(ics_indices1["Overall Index"][0].astype(float) - place_metric, 3)
     st.metric(
-        "Overall Index", place_metric, ics_metric, delta_color="normal",
+        "Overall Need", place_metric, ics_metric, delta_color="normal",
     )
 with GA:
     place_metric = round(place_indices1["G&A Index"][0].astype(float), 3)
     ics_metric = round(ics_indices1["G&A Index"][0].astype(float) - place_metric, 3)
     st.metric(
-        "G&A Index", place_metric, ics_metric, delta_color="normal",
+        "General & Acute", place_metric, ics_metric, delta_color="normal",
     )
 with Community:
     place_metric = round(place_indices1["Community Index"][0].astype(float), 3)
@@ -289,7 +289,7 @@ with Community:
         ics_indices1["Community Index"][0].astype(float) - place_metric, 3
     )
     st.metric(
-        "Community Index", place_metric, ics_metric, delta_color="normal",
+        "Community", place_metric, ics_metric, delta_color="normal",
     )
 with MentalHealth:
     place_metric = round(place_indices1["Mental Health Index"][0].astype(float), 3)
@@ -297,7 +297,7 @@ with MentalHealth:
         ics_indices1["Mental Health Index"][0].astype(float) - place_metric, 3
     )
     st.metric(
-        "Mental Health Index", place_metric, ics_metric, delta_color="normal",
+        "Mental Health", place_metric, ics_metric, delta_color="normal",
     )
 with Maternity:
     place_metric = round(place_indices1["Maternity Index"][0].astype(float), 3)
@@ -305,7 +305,7 @@ with Maternity:
         ics_indices1["Maternity Index"][0].astype(float) - place_metric, 3
     )
     st.metric(
-        "Maternity Index", place_metric, ics_metric, delta_color="normal",
+        "Maternity", place_metric, ics_metric, delta_color="normal",
     )
 # add these
 (HCHS, MarketForcesFactor, EACA, Prescribing, AM) = st.columns(5)
@@ -313,7 +313,7 @@ with HCHS:
     place_metric = round(place_indices1["HCHS Index"][0].astype(float), 3)
     ics_metric = round(ics_indices1["HCHS Index"][0].astype(float) - place_metric, 3)
     st.metric(
-        "HCHS Index", place_metric, ics_metric, delta_color="normal",
+        "HCHS", place_metric, ics_metric, delta_color="normal",
     )
 with MarketForcesFactor:
     place_metric = round(
@@ -323,13 +323,13 @@ with MarketForcesFactor:
         ics_indices1["Market Forces Factor Index"][0].astype(float) - place_metric, 3
     )
     st.metric(
-        "MFF Index", place_metric, ics_metric, delta_color="normal",
+        "Market Forces Factor", place_metric, ics_metric, delta_color="normal",
     )
 with EACA:
     place_metric = round(place_indices1["EACA Index"][0].astype(float), 3)
     ics_metric = round(ics_indices1["EACA Index"][0].astype(float) - place_metric, 3)
     st.metric(
-        "EACA Index", place_metric, ics_metric, delta_color="normal",
+        "EACA", place_metric, ics_metric, delta_color="normal",
     )
 with Prescribing:
     place_metric = round(place_indices1["Prescribing Index"][0].astype(float), 3)
@@ -337,13 +337,13 @@ with Prescribing:
         ics_indices1["Prescribing Index"][0].astype(float) - place_metric, 3
     )
     st.metric(
-        "Prescribing Index", place_metric, ics_metric, delta_color="normal",
+        "Prescribing", place_metric, ics_metric, delta_color="normal",
     )
 with AM:
     place_metric = round(place_indices1["AM Index"][0].astype(float), 3)
     ics_metric = round(ics_indices1["AM Index"][0].astype(float) - place_metric, 3)
     st.metric(
-        "AM Index", place_metric, ics_metric, delta_color="normal",
+        "Avoidable Mortality", place_metric, ics_metric, delta_color="normal",
     )
 
 st.subheader("Downloads")
