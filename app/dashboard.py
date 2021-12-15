@@ -1,7 +1,7 @@
 # -------------------------------------------------------------------------
 # Copyright (c) 2021 NHS England and NHS Improvement. All rights reserved.
-# Licensed under the MIT License. See license.txt in the project root for
-# license information.
+# Licensed under the MIT License and the Open Government License v3. See
+# license.txt in the project root for license information.
 # -------------------------------------------------------------------------
 
 """
@@ -117,8 +117,6 @@ ics_query = "`ICS name` == @ics_state"  # escape column names with backticks htt
 
 # Markdown
 # -----------------------------------------------------
-st.markdown("PROTOTYPE UNDER DEVELOPMENT - Last Updated 15th December 2021")
-
 # NHS Logo
 svg = """
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 16">
@@ -129,7 +127,7 @@ svg = """
 render_svg(svg)
 
 st.title("ICS Place Based Allocation Tool")
-
+st.markdown("PROTOTYPE UNDER DEVELOPMENT - Last Updated 15th December 2021")
 with st.expander("See Instructions"):
     st.markdown(
         "This tool is designed to allow place, for allocation purposes, to be defined by aggregating GP Practices within an ICS. Please refer to the User Guide for instructions."
@@ -234,7 +232,7 @@ st.write(
     option,
     "** compared to the **",
     st.session_state[option]["ics"],
-    " ICS** average",
+    " ** Need Index",
 )
 
 # Write session state values to query vars
