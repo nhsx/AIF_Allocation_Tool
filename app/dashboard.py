@@ -86,7 +86,8 @@ aggregations = {
     "Weighted Maternity pop": "sum",
     "Weighted HCHS pop": "sum",
     "Weighted Prescribing pop": "sum",
-    "Weighted AM pop": "sum",
+    "Weighted Avoidable Mortality pop": "sum",
+    "Weighted Health Inequalities pop": "sum",
     "Overall Weighted pop": "sum",
 }
 
@@ -97,7 +98,8 @@ index_numerator = [
     "Weighted Maternity pop",
     "Weighted HCHS pop",
     "Weighted Prescribing pop",
-    "Weighted AM pop",
+    "Weighted Avoidable Mortality pop",
+    "Weighted Health Inequalities pop",
     "Overall Weighted pop",
 ]
 
@@ -108,7 +110,8 @@ index_names = [
     "Maternity Index",
     "HCHS Index",
     "Prescribing Index",
-    "AM Index",
+    "Avoidable Mortality Index",
+    "Health Inequalities Index",
     "Overall Index",
 ]
 
@@ -228,11 +231,11 @@ st.info("**Selected GP Practices: **" + str(st.session_state[option]["gps"]))
 
 st.subheader("Group Metrics")
 st.write(
-    "KPIs shows the Need Indices of **",
+    "KPIs shows the normalised Need Indices of **",
     option,
     "** compared to the **",
     st.session_state[option]["ics"],
-    " ** Need Index",
+    " **",
 )
 
 # Write session state values to query vars
@@ -264,61 +267,63 @@ df_print = pd.concat(
 (Overall, GA, Community, MentalHealth, Maternity) = st.columns(5)
 with Overall:
     place_metric = round(place_indices1["Overall Index"][0].astype(float), 3)
-    ics_metric = round(ics_indices1["Overall Index"][0].astype(float) - place_metric, 3)
+    ics_metric = round(place_metric - 1, 3)
     st.metric(
-        "Overall Need", place_metric, ics_metric, delta_color="normal",
+        "Overall Need", place_metric, ics_metric, delta_color="inverse",
     )
 with GA:
     place_metric = round(place_indices1["G&A Index"][0].astype(float), 3)
-    ics_metric = round(ics_indices1["G&A Index"][0].astype(float) - place_metric, 3)
+    ics_metric = round(place_metric - 1, 3)
     st.metric(
-        "General & Acute", place_metric, ics_metric, delta_color="normal",
+        "General & Acute", place_metric, ics_metric, delta_color="inverse",
     )
 with Community:
     place_metric = round(place_indices1["Community Index"][0].astype(float), 3)
-    ics_metric = round(
-        ics_indices1["Community Index"][0].astype(float) - place_metric, 3
-    )
+    ics_metric = round(place_metric - 1, 3)
     st.metric(
-        "Community", place_metric, ics_metric, delta_color="normal",
+        "Community", place_metric, ics_metric, delta_color="inverse",
     )
 with MentalHealth:
     place_metric = round(place_indices1["Mental Health Index"][0].astype(float), 3)
-    ics_metric = round(
-        ics_indices1["Mental Health Index"][0].astype(float) - place_metric, 3
-    )
+    ics_metric = round(place_metric - 1, 3)
     st.metric(
-        "Mental Health", place_metric, ics_metric, delta_color="normal",
+        "Mental Health", place_metric, ics_metric, delta_color="inverse",
     )
 with Maternity:
     place_metric = round(place_indices1["Maternity Index"][0].astype(float), 3)
-    ics_metric = round(
-        ics_indices1["Maternity Index"][0].astype(float) - place_metric, 3
-    )
+    ics_metric = round(place_metric - 1, 3)
     st.metric(
-        "Maternity", place_metric, ics_metric, delta_color="normal",
+        "Maternity", place_metric, ics_metric, delta_color="inverse",
     )
 # add these
-(HCHS, Prescribing, AM, blank1, blank2) = st.columns(5)
+(HCHS, Prescribing, HI, AM, blank3) = st.columns(5)
 with HCHS:
     place_metric = round(place_indices1["HCHS Index"][0].astype(float), 3)
-    ics_metric = round(ics_indices1["HCHS Index"][0].astype(float) - place_metric, 3)
+    ics_metric = round(place_metric - 1, 3)
     st.metric(
-        "HCHS", place_metric, ics_metric, delta_color="normal",
+        "HCHS", place_metric, ics_metric, delta_color="inverse",
     )
 with Prescribing:
     place_metric = round(place_indices1["Prescribing Index"][0].astype(float), 3)
-    ics_metric = round(
-        ics_indices1["Prescribing Index"][0].astype(float) - place_metric, 3
-    )
+    ics_metric = round(place_metric - 1, 3)
     st.metric(
-        "Prescribing", place_metric, ics_metric, delta_color="normal",
+        "Prescribing", place_metric, ics_metric, delta_color="inverse",
+    )
+with HI:
+    place_metric = round(
+        place_indices1["Health Inequalities Index"][0].astype(float), 3
+    )
+    ics_metric = round(place_metric - 1, 3)
+    st.metric(
+        "Health Inequalities", place_metric, ics_metric, delta_color="inverse",
     )
 with AM:
-    place_metric = round(place_indices1["AM Index"][0].astype(float), 3)
-    ics_metric = round(ics_indices1["AM Index"][0].astype(float) - place_metric, 3)
+    place_metric = round(
+        place_indices1["Avoidable Mortality Index"][0].astype(float), 3
+    )
+    ics_metric = round(place_metric - 1, 3)
     st.metric(
-        "Avoidable Mortality", place_metric, ics_metric, delta_color="normal",
+        "Avoidable Mortality", place_metric, ics_metric, delta_color="inverse",
     )
 
 st.subheader("Downloads")

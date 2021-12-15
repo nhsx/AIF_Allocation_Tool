@@ -17,8 +17,8 @@ def get_data():
             "WP_Mat": "Weighted Maternity pop",
             "WP_HCHS": "Weighted HCHS pop",
             "WP_Presc": "Weighted Prescribing pop",
-            "WP_HI": "Weighted HI pop",
-            "WP_AM": "Weighted AM pop",
+            "WP_HI": "Weighted Health Inequalities pop",
+            "WP_AM": "Weighted Avoidable Mortality pop",
             "WP_Overall": "Overall Weighted pop",
         }
     )
