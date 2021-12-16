@@ -25,9 +25,10 @@ import utils
 # 3rd party:
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 # Set default place in session
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 if "Group 1" not in st.session_state:
     st.session_state["Group 1"] = {
         "gps": [
@@ -78,6 +79,12 @@ def convert_df(df):
     return df.to_csv(index=False).encode("utf-8")
 
 
+def metric_calcs(group_need_indices, metric_index):
+    place_metric = round(group_need_indices[metric_index][0].astype(float), 3)
+    ics_metric = round(place_metric - 1, 3)
+    return place_metric, ics_metric
+
+
 aggregations = {
     "GP pop": "sum",
     "Weighted G&A pop": "sum",
@@ -119,7 +126,7 @@ gp_query = "practice_display == @place_state"
 ics_query = "`ICS name` == @ics_state"  # escape column names with backticks https://stackoverflow.com/a/56157729
 
 # Markdown
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 # NHS Logo
 svg = """
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 16">
@@ -144,12 +151,12 @@ with st.expander("See Instructions"):
     )
 
 # Import Data
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 data = utils.get_data()
 ics = utils.get_sidebar(data)
 
 # SIDEBAR
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 st.sidebar.subheader("Create New Group")
 ics_choice = st.sidebar.selectbox("ICS Filter:", ics, help="Select an ICS")
 lad_filter = st.sidebar.checkbox("Filter by Local Authority District")
@@ -226,7 +233,7 @@ debug = st.sidebar.checkbox("Show Session State")
 
 
 # BODY
-# -----------------------------------------------------
+# -------------------------------------------------------------------------
 option = st.selectbox("Select Group", (st.session_state.places))
 
 st.info("**Selected GP Practices: **" + str(st.session_state[option]["gps"]))
@@ -265,69 +272,42 @@ df_print = pd.concat(
     [ics_indices1, place_indices1], axis=0, join="inner", ignore_index=True
 )
 
-# tbd: Loop this
-(Overall, GA, Community, MentalHealth, Maternity) = st.columns(5)
-with Overall:
-    place_metric = round(place_indices1["Overall Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Overall Need", place_metric, ics_metric, delta_color="inverse",
-    )
-with GA:
-    place_metric = round(place_indices1["G&A Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "General & Acute", place_metric, ics_metric, delta_color="inverse",
-    )
-with Community:
-    place_metric = round(place_indices1["Community Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Community", place_metric, ics_metric, delta_color="inverse",
-    )
-with MentalHealth:
-    place_metric = round(place_indices1["Mental Health Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Mental Health", place_metric, ics_metric, delta_color="inverse",
-    )
-with Maternity:
-    place_metric = round(place_indices1["Maternity Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Maternity", place_metric, ics_metric, delta_color="inverse",
-    )
-# add these
-(HCHS, Prescribing, HI, AM, blank3) = st.columns(5)
-with HCHS:
-    place_metric = round(place_indices1["HCHS Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "HCHS", place_metric, ics_metric, delta_color="inverse",
-    )
-with Prescribing:
-    place_metric = round(place_indices1["Prescribing Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Prescribing", place_metric, ics_metric, delta_color="inverse",
-    )
-with HI:
-    place_metric = round(
-        place_indices1["Health Inequalities Index"][0].astype(float), 3
-    )
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Health Inequalities", place_metric, ics_metric, delta_color="inverse",
-    )
-with AM:
-    place_metric = round(
-        place_indices1["Avoidable Mortality Index"][0].astype(float), 3
-    )
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Avoidable Mortality", place_metric, ics_metric, delta_color="inverse",
+# Metrics
+# -------------------------------------------------------------------------
+# First row
+metric_cols = [
+    "Overall Index",
+    "G&A Index",
+    "Community Index",
+    "Mental Health Index",
+    "Maternity Index",
+]
+
+cols = st.columns(len(metric_cols))
+for metric in metric_cols:
+    place_metric, ics_metric = metric_calcs(place_indices1, metric)
+    cols[metric_cols.index(metric)].metric(
+        metric, place_metric, ics_metric, delta_color="inverse"
     )
 
+# Second row
+metric_cols = [
+    "HCHS Index",
+    "Prescribing Index",
+    "Avoidable Mortality Index",
+    "Health Inequalities Index",
+    "blank",
+]
+cols = st.columns(len(metric_cols))
+for metric in metric_cols:
+    if metric is not "blank":
+        place_metric, ics_metric = metric_calcs(place_indices1, metric)
+        cols[metric_cols.index(metric)].metric(
+            metric, place_metric, ics_metric, delta_color="inverse"
+        )
+
+# Downloads
+# -------------------------------------------------------------------------
 st.subheader("Downloads")
 
 print_table = st.checkbox("Preview data download")
@@ -343,6 +323,8 @@ st.download_button(
     mime="text/csv",
 )
 
+# Debugging
+# -------------------------------------------------------------------------
 if debug:
     st.markdown("DEBUGGING")
     st.session_state
