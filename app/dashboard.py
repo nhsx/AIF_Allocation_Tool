@@ -136,7 +136,7 @@ svg = """
 """
 render_svg(svg)
 
-st.title("ICS Place Based Allocation Tool")
+st.title("ICB Place Based Allocation Tool")
 st.markdown("PROTOTYPE UNDER DEVELOPMENT - Last Updated 15th December 2021")
 with st.expander("See Instructions"):
     st.markdown(
@@ -158,18 +158,19 @@ ics = utils.get_sidebar(data)
 # SIDEBAR
 # -------------------------------------------------------------------------
 st.sidebar.subheader("Create New Group")
-ics_choice = st.sidebar.selectbox("ICS Filter:", ics, help="Select an ICS")
-lad_filter = st.sidebar.checkbox("Filter by Local Authority District")
-if lad_filter:
-    lad = data["LA District name"].loc[data["ICS name"] == ics_choice].unique().tolist()
-    lad_choice = st.sidebar.selectbox(
-        "LA District Filter:", lad, help="Select a Local Authority District"
-    )
-    practices = list(
-        data["practice_display"].loc[data["LA District name"] == lad_choice]
+ics_choice = st.sidebar.selectbox("ICB Filter:", ics, help="Select an ICS")
+lad = data["LA District name"].loc[data["ICS name"] == ics_choice].unique().tolist()
+lad_choice = st.sidebar.multiselect(
+    "Local Authority District Filter:", lad, help="Select a Local Authority District"
+)
+if lad_choice == []:
+    practices = (
+        data["practice_display"].loc[data["ICS name"] == ics_choice].unique().tolist()
     )
 else:
-    practices = list(data["practice_display"].loc[data["ICS name"] == ics_choice])
+    practices = (
+        data["practice_display"].loc[data["LA District name"].isin(lad_choice)].tolist()
+    )
 
 practice_choice = st.sidebar.multiselect(
     "Select GP Practices:",
