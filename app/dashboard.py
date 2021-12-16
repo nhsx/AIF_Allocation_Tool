@@ -324,6 +324,25 @@ st.download_button(
     mime="text/csv",
 )
 
+import io
+import zipfile
+
+# https://stackoverflow.com/a/44946732
+zip_buffer = io.BytesIO()
+with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
+    for file_name, data in [
+        ("2.csv", io.BytesIO(csv)),
+        ("2.txt", io.BytesIO(b"222")),
+    ]:
+        zip_file.writestr(file_name, data.getvalue())
+
+btn = st.download_button(
+    label="Download ZIP",
+    data=zip_buffer.getvalue(),
+    file_name="myfile.zip",
+    mime="application/zip",
+)
+
 # Debugging
 # -------------------------------------------------------------------------
 if debug:
