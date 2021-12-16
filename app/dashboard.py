@@ -25,6 +25,7 @@ import utils
 # 3rd party:
 import streamlit as st
 import pandas as pd
+import numpy as np
 
 # Set default place in session
 # -------------------------------------------------------------------------
@@ -76,6 +77,12 @@ def render_svg(svg):
 @st.cache
 def convert_df(df):
     return df.to_csv(index=False).encode("utf-8")
+
+
+def metric_calcs(group_need_indices, metric_index):
+    place_metric = round(group_need_indices[metric_index][0].astype(float), 3)
+    ics_metric = round(place_metric - 1, 3)
+    return place_metric, ics_metric
 
 
 aggregations = {
@@ -267,69 +274,40 @@ df_print = pd.concat(
 
 # Metrics
 # -------------------------------------------------------------------------
-# tbd: Loop this
-(Overall, GA, Community, MentalHealth, Maternity) = st.columns(5)
-with Overall:
-    place_metric = round(place_indices1["Overall Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Overall Need", place_metric, ics_metric, delta_color="inverse",
-    )
-with GA:
-    place_metric = round(place_indices1["G&A Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "General & Acute", place_metric, ics_metric, delta_color="inverse",
-    )
-with Community:
-    place_metric = round(place_indices1["Community Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Community", place_metric, ics_metric, delta_color="inverse",
-    )
-with MentalHealth:
-    place_metric = round(place_indices1["Mental Health Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Mental Health", place_metric, ics_metric, delta_color="inverse",
-    )
-with Maternity:
-    place_metric = round(place_indices1["Maternity Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Maternity", place_metric, ics_metric, delta_color="inverse",
+# First row
+metric_cols = [
+    "Overall Index",
+    "G&A Index",
+    "Community Index",
+    "Mental Health Index",
+    "Maternity Index",
+]
+
+cols = st.columns(len(metric_cols))
+for metric in metric_cols:
+    place_metric, ics_metric = metric_calcs(place_indices1, metric)
+    cols[metric_cols.index(metric)].metric(
+        metric, place_metric, ics_metric, delta_color="inverse"
     )
 
-(HCHS, Prescribing, HI, AM, blank) = st.columns(5)
-with HCHS:
-    place_metric = round(place_indices1["HCHS Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "HCHS", place_metric, ics_metric, delta_color="inverse",
-    )
-with Prescribing:
-    place_metric = round(place_indices1["Prescribing Index"][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Prescribing", place_metric, ics_metric, delta_color="inverse",
-    )
-with HI:
-    place_metric = round(
-        place_indices1["Health Inequalities Index"][0].astype(float), 3
-    )
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Health Inequalities", place_metric, ics_metric, delta_color="inverse",
-    )
-with AM:
-    place_metric = round(
-        place_indices1["Avoidable Mortality Index"][0].astype(float), 3
-    )
-    ics_metric = round(place_metric - 1, 3)
-    st.metric(
-        "Avoidable Mortality", place_metric, ics_metric, delta_color="inverse",
-    )
+# Second row
+metric_cols = [
+    "HCHS Index",
+    "Prescribing Index",
+    "Avoidable Mortality Index",
+    "Health Inequalities Index",
+    "blank",
+]
+cols = st.columns(len(metric_cols))
+for metric in metric_cols:
+    if metric is not "blank":
+        place_metric, ics_metric = metric_calcs(place_indices1, metric)
+        cols[metric_cols.index(metric)].metric(
+            metric, place_metric, ics_metric, delta_color="inverse"
+        )
 
+# Downloads
+# -------------------------------------------------------------------------
 st.subheader("Downloads")
 
 print_table = st.checkbox("Preview data download")
@@ -345,6 +323,8 @@ st.download_button(
     mime="text/csv",
 )
 
+# Debugging
+# -------------------------------------------------------------------------
 if debug:
     st.markdown("DEBUGGING")
     st.session_state
