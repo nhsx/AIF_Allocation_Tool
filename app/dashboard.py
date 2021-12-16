@@ -21,6 +21,8 @@ import json
 import time
 import base64
 import utils
+import io
+import zipfile
 
 # 3rd party:
 import streamlit as st
@@ -137,17 +139,21 @@ svg = """
 render_svg(svg)
 
 st.title("ICB Place Based Allocation Tool")
-st.markdown("PROTOTYPE UNDER DEVELOPMENT - Last Updated 15th December 2021")
+st.markdown("Last Updated 16th December 2021")
 with st.expander("See Instructions"):
     st.markdown(
-        "This tool is designed to allow place, for allocation purposes, to be defined by aggregating GP Practices within an ICS. Please refer to the User Guide for instructions."
+        "This tool is designed to support allocation at places by allowing places to be defined by aggregating GP Practices within an ICB. Please refer to the User Guide for instructions."
     )
+    st.markdown("The tool estimates the relative need for places within the ICB.")
     st.markdown(
         "The Relative Need Index for ICS (i) and Defined Place (p) is given by the formula:"
     )
     st.latex(r""" (WP_p/GP_p)\over (WP_i/GP_i)""")
     st.markdown(
-        "This tool utilises weighted populations calculated from the 2018/19 GP Registered Practice Populations"
+        "This tool is based on estimated need for 2022/23 by utilising weighted populations projected from the October 2021 GP Registered Practice Populations."
+    )
+    st.markdown(
+        "For more information on the latest allocations, including contact details, please refer to: [https://www.england.nhs.uk/allocations/](https://www.england.nhs.uk/allocations/)"
     )
 
 # Import Data
@@ -181,8 +187,6 @@ place_name = st.sidebar.text_input(
     "Name your Group", "Group 1", help="Give your defined place a name to identify it"
 )
 if st.sidebar.button("Save Group", help="Save group to session state", key="output",):
-    # add dataframe to session state here
-
     if [place_name] not in st.session_state:
         st.session_state[place_name] = {"gps": practice_choice, "ics": ics_choice}
     if "places" not in st.session_state:
@@ -243,8 +247,8 @@ st.subheader("Group Metrics")
 st.write(
     "KPIs shows the normalised Need Indices of **",
     option,
-    "** compared to the **",
-    st.session_state[option]["ics"],
+    # "** compared to the **",
+    # st.session_state[option]["ics"],
     " **",
 )
 
@@ -288,7 +292,7 @@ cols = st.columns(len(metric_cols))
 for metric in metric_cols:
     place_metric, ics_metric = metric_calcs(place_indices1, metric)
     cols[metric_cols.index(metric)].metric(
-        metric, place_metric, ics_metric, delta_color="inverse"
+        metric, place_metric,  # ics_metric, delta_color="inverse"
     )
 
 # Second row
@@ -304,7 +308,7 @@ for metric in metric_cols:
     if metric is not "blank":
         place_metric, ics_metric = metric_calcs(place_indices1, metric)
         cols[metric_cols.index(metric)].metric(
-            metric, place_metric, ics_metric, delta_color="inverse"
+            metric, place_metric,  # ics_metric, delta_color="inverse"
         )
 
 # Downloads
@@ -324,9 +328,6 @@ st.download_button(
     mime="text/csv",
 )
 
-import io
-import zipfile
-
 # https://stackoverflow.com/a/44946732
 zip_buffer = io.BytesIO()
 with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
@@ -342,6 +343,11 @@ btn = st.download_button(
     file_name="myfile.zip",
     mime="application/zip",
 )
+
+with st.expander("Caveats and Notes"):
+    st.markdown(
+        "- The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the G&A model."
+    )
 
 # Debugging
 # -------------------------------------------------------------------------
