@@ -23,6 +23,8 @@ import base64
 import utils
 import io
 import zipfile
+import regex as re
+from datetime import datetime
 
 # 3rd party:
 import streamlit as st
@@ -187,12 +189,15 @@ place_name = st.sidebar.text_input(
     "Name your Group", "Group 1", help="Give your defined place a name to identify it"
 )
 if st.sidebar.button("Save Group", help="Save group to session state", key="output",):
-    if [place_name] not in st.session_state:
-        st.session_state[place_name] = {"gps": practice_choice, "ics": ics_choice}
-    if "places" not in st.session_state:
-        st.session_state.places = [place_name]
-    if place_name not in st.session_state.places:
-        st.session_state.places = st.session_state.places + [place_name]
+    if practice_choice == []:
+        st.sidebar.error("Please select one or more GP practices")
+    else:
+        if [place_name] not in st.session_state:
+            st.session_state[place_name] = {"gps": practice_choice, "ics": ics_choice}
+        if "places" not in st.session_state:
+            st.session_state.places = [place_name]
+        if place_name not in st.session_state.places:
+            st.session_state.places = st.session_state.places + [place_name]
 
 # if st.sidebar.button("Reset Group", key="output"):
 #    del st.session_state[place_name]
@@ -241,8 +246,10 @@ debug = st.sidebar.checkbox("Show Session State")
 # -------------------------------------------------------------------------
 option = st.selectbox("Select Group", (st.session_state.places))
 
-st.info("**Selected GP Practices: **" + str(st.session_state[option]["gps"]))
-
+st.info("**Selected GP Practices: **" + re.sub('\w+:', '', str(st.session_state[option]["gps"])
+    .replace("'", "")
+    .replace("[", "")
+    .replace("]", "")))
 st.subheader("Group Metrics")
 st.write(
     "KPIs shows the normalised Need Indices of **",
@@ -305,7 +312,7 @@ metric_cols = [
 ]
 cols = st.columns(len(metric_cols))
 for metric in metric_cols:
-    if metric is not "blank":
+    if metric != "blank":
         place_metric, ics_metric = metric_calcs(place_indices1, metric)
         cols[metric_cols.index(metric)].metric(
             metric, place_metric,  # ics_metric, delta_color="inverse"
@@ -313,6 +320,8 @@ for metric in metric_cols:
 
 # Downloads
 # -------------------------------------------------------------------------
+current_date = datetime.now().strftime("%Y-%m-%d")
+
 st.subheader("Downloads")
 
 print_table = st.checkbox("Preview data download")
@@ -332,15 +341,16 @@ st.download_button(
 zip_buffer = io.BytesIO()
 with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
     for file_name, data in [
-        ("2.csv", io.BytesIO(csv)),
-        ("2.txt", io.BytesIO(b"222")),
+        ("ICB allocation calculations.csv", io.BytesIO(csv)),
+        ("ICB allocation tool documentation.txt", io.BytesIO(b"222")),
+        ("ICB allocation tool configuration file.json", io.StringIO(session_state_dump))
     ]:
         zip_file.writestr(file_name, data.getvalue())
 
 btn = st.download_button(
     label="Download ZIP",
     data=zip_buffer.getvalue(),
-    file_name="myfile.zip",
+    file_name="ICB allocation tool %s.zip" %current_date, 
     mime="application/zip",
 )
 
