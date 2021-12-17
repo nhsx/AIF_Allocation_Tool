@@ -23,6 +23,7 @@ import base64
 import utils
 import io
 import zipfile
+from datetime import datetime 
 
 # 3rd party:
 import streamlit as st
@@ -316,6 +317,8 @@ for metric in metric_cols:
 
 # Downloads
 # -------------------------------------------------------------------------
+current_date = datetime.now().strftime("%Y-%m-%d")
+
 st.subheader("Downloads")
 
 print_table = st.checkbox("Preview data download")
@@ -335,15 +338,16 @@ st.download_button(
 zip_buffer = io.BytesIO()
 with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
     for file_name, data in [
-        ("2.csv", io.BytesIO(csv)),
-        ("2.txt", io.BytesIO(b"222")),
+        ("ICB allocation calculations.csv", io.BytesIO(csv)),
+        ("ICB allocation tool documentation.txt", io.BytesIO(b"222")),
+        ("ICB allocation tool configuration file.json", io.StringIO(session_state_dump))
     ]:
         zip_file.writestr(file_name, data.getvalue())
 
 btn = st.download_button(
     label="Download ZIP",
     data=zip_buffer.getvalue(),
-    file_name="myfile.zip",
+    file_name="ICB allocation tool %s.zip" %current_date, 
     mime="application/zip",
 )
 
