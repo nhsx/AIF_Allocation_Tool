@@ -245,7 +245,7 @@ debug = st.sidebar.checkbox("Show Session State")
 # -------------------------------------------------------------------------
 option = st.selectbox("Select Group", (st.session_state.places))
 
-st.info("**Selected GP Practices: **" + str(st.session_state[option]["gps"]))
+st.info("**Selected GP Practices: **" + str(st.session_state[option]["gps"])) #---- fix 
 
 st.subheader("Group Metrics")
 st.write(
