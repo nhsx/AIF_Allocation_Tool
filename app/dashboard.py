@@ -23,7 +23,8 @@ import base64
 import utils
 import io
 import zipfile
-from datetime import datetime 
+import regex as re
+from datetime import datetime
 
 # 3rd party:
 import streamlit as st
@@ -245,8 +246,10 @@ debug = st.sidebar.checkbox("Show Session State")
 # -------------------------------------------------------------------------
 option = st.selectbox("Select Group", (st.session_state.places))
 
-st.info("**Selected GP Practices: **" + str(st.session_state[option]["gps"])) #---- fix 
-
+st.info("**Selected GP Practices: **" + re.sub('\w+:', '', str(st.session_state[option]["gps"])
+    .replace("'", "")
+    .replace("[", "")
+    .replace("]", "")))
 st.subheader("Group Metrics")
 st.write(
     "KPIs shows the normalised Need Indices of **",
