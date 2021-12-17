@@ -187,12 +187,15 @@ place_name = st.sidebar.text_input(
     "Name your Group", "Group 1", help="Give your defined place a name to identify it"
 )
 if st.sidebar.button("Save Group", help="Save group to session state", key="output",):
-    if [place_name] not in st.session_state:
-        st.session_state[place_name] = {"gps": practice_choice, "ics": ics_choice}
-    if "places" not in st.session_state:
-        st.session_state.places = [place_name]
-    if place_name not in st.session_state.places:
-        st.session_state.places = st.session_state.places + [place_name]
+    if practice_choice == []:
+        st.sidebar.error("Please select one or more GP practices")
+    else:
+        if [place_name] not in st.session_state:
+            st.session_state[place_name] = {"gps": practice_choice, "ics": ics_choice}
+        if "places" not in st.session_state:
+            st.session_state.places = [place_name]
+        if place_name not in st.session_state.places:
+            st.session_state.places = st.session_state.places + [place_name]
 
 # if st.sidebar.button("Reset Group", key="output"):
 #    del st.session_state[place_name]
@@ -305,7 +308,7 @@ metric_cols = [
 ]
 cols = st.columns(len(metric_cols))
 for metric in metric_cols:
-    if metric is not "blank":
+    if metric != "blank":
         place_metric, ics_metric = metric_calcs(place_indices1, metric)
         cols[metric_cols.index(metric)].metric(
             metric, place_metric,  # ics_metric, delta_color="inverse"
