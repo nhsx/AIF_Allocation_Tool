@@ -31,6 +31,18 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 
+st.set_page_config(
+    page_title="ICB Place Based Allocation Tool",
+    page_icon="https://www.england.nhs.uk/wp-content/themes/nhsengland/static/img/favicon.ico",
+    layout="centered",
+    initial_sidebar_state="expanded",
+    menu_items={
+        "Get Help": "https://www.england.nhs.uk/allocations/",
+        "Report a bug": "https://github.com/nhsengland/AIF_Allocation_Tool",
+        "About": "This tool is designed to support allocation at places by allowing places to be defined by aggregating GP Practices within an ICB. Please refer to the User Guide for instructions. For more information on the latest allocations, including contact details, please refer to: [https://www.england.nhs.uk/allocations/](https://www.england.nhs.uk/allocations/)",
+    },
+)
+
 # Set default place in session
 # -------------------------------------------------------------------------
 if "Group 1" not in st.session_state:
@@ -84,8 +96,8 @@ def convert_df(df):
 
 
 def metric_calcs(group_need_indices, metric_index):
-    place_metric = round(group_need_indices[metric_index][0].astype(float), 3)
-    ics_metric = round(place_metric - 1, 3)
+    place_metric = round(group_need_indices[metric_index][0].astype(float), 2)
+    ics_metric = round(place_metric - 1, 2)
     return place_metric, ics_metric
 
 
@@ -125,9 +137,6 @@ index_names = [
     "Health Inequalities Index",
     "Overall Index",
 ]
-
-gp_query = "practice_display == @place_state"
-ics_query = "`ICS name` == @ics_state"  # escape column names with backticks https://stackoverflow.com/a/56157729
 
 # Markdown
 # -------------------------------------------------------------------------
@@ -244,49 +253,36 @@ debug = st.sidebar.checkbox("Show Session State")
 
 # BODY
 # -------------------------------------------------------------------------
-option = st.selectbox("Select Group", (st.session_state.places))
 
-st.info("**Selected GP Practices: **" + re.sub('\w+:', '', str(st.session_state[option]["gps"])
-    .replace("'", "")
-    .replace("[", "")
-    .replace("]", "")))
-st.subheader("Group Metrics")
-st.write(
-    "KPIs shows the normalised Need Indices of **",
-    option,
-    # "** compared to the **",
-    # st.session_state[option]["ics"],
-    " **",
-)
+gp_query = "practice_display == @place_state"
+icb_query = "`ICS name` == @icb_state"  # escape column names with backticks https://stackoverflow.com/a/56157729
 
-# Write session state values to query vars
-place_state = st.session_state[option]["gps"]
-ics_state = st.session_state[option]["ics"]
+# dict to store all dfs sorted by ICB
+dict_obj = {}
+df_list = []
+for place in st.session_state.places:
+    place_state = st.session_state[place]["gps"]
+    icb_state = st.session_state[place]["ics"]
+    # get place aggregations
+    place_data, place_groupby = aggregate(
+        data, gp_query, place, "Place Name", aggregations
+    )
+    # get ICS aggregations
+    icb_data, icb_groupby = aggregate(
+        data, icb_query, icb_state, "ICS name", aggregations
+    )
+    # index calcs
+    place_indices, icb_indices = get_index(
+        place_groupby, icb_groupby, index_names, index_numerator
+    )
+    icb_indices.insert(loc=0, column="Group / ICB", value=icb_state)
+    place_indices.insert(loc=0, column="Group / ICB", value=place)
 
-# get place aggregations
-place_query, place_indices = aggregate(
-    data, gp_query, option, "Place Name", aggregations
-)
+    if icb_state not in dict_obj:
+        dict_obj[icb_state] = [icb_indices, place_indices]
+    else:
+        dict_obj[icb_state].append(place_indices)
 
-# get ICS aggregations
-ics_query1, ics_indices = aggregate(
-    data, ics_query, st.session_state[option]["ics"], "ICS name", aggregations
-)
-
-# index calcs
-place_indices1, ics_indices1 = get_index(
-    place_indices, ics_indices, index_names, index_numerator
-)
-# print all data
-ics_indices1.insert(loc=0, column="Group / ICS", value=st.session_state[option]["ics"])
-place_indices1.insert(loc=0, column="Group / ICS", value=option)
-df_print = pd.concat(
-    [ics_indices1, place_indices1], axis=0, join="inner", ignore_index=True
-)
-
-# Metrics
-# -------------------------------------------------------------------------
-# First row
 metric_cols = [
     "Overall Index",
     "G&A Index",
@@ -295,28 +291,153 @@ metric_cols = [
     "Maternity Index",
 ]
 
-cols = st.columns(len(metric_cols))
-for metric in metric_cols:
-    place_metric, ics_metric = metric_calcs(place_indices1, metric)
-    cols[metric_cols.index(metric)].metric(
-        metric, place_metric,  # ics_metric, delta_color="inverse"
-    )
+# add dict values to list
+for obj in dict_obj:
+    df_list.append(dict_obj[obj])
 
-# Second row
+# flaten list for concatination
+flat_list = [item for sublist in df_list for item in sublist]
+large_df = pd.concat(flat_list, ignore_index=True)
+
+
+# Metrics
+# -------------------------------------------------------------------------
 metric_cols = [
-    "HCHS Index",
+    "G&A Index",
+    "Community Index",
+    "Mental Health Index",
+    "Maternity Index",
     "Prescribing Index",
-    "Avoidable Mortality Index",
     "Health Inequalities Index",
-    "blank",
+    "Overall Index",
 ]
-cols = st.columns(len(metric_cols))
-for metric in metric_cols:
-    if metric != "blank":
-        place_metric, ics_metric = metric_calcs(place_indices1, metric)
-        cols[metric_cols.index(metric)].metric(
-            metric, place_metric,  # ics_metric, delta_color="inverse"
+metric_names = [
+    "Gen & Acute",
+    "Community*",
+    "Mental Health",
+    "Maternity",
+    "Prescribing",
+    "Health Inequal",
+    "Overall Index",
+]
+
+for option in dict_obj:
+    st.write("**", option, "**")
+    for count, df in enumerate(dict_obj[option][1:]):  # skip first (ICB) metric
+        # Group GP practice display
+        group_name = dict_obj[option][count + 1]["Group / ICB"].item()
+        group_gps = (
+            "**"
+            + group_name
+            + " : **"
+            + re.sub(
+                "\w+:",
+                "",
+                str(st.session_state[group_name]["gps"])
+                .replace("'", "")
+                .replace("[", "")
+                .replace("]", ""),
+            )
         )
+        st.info(group_gps)
+        cols = st.columns(len(metric_cols))
+        for metric, name in zip(metric_cols, metric_names):
+            place_metric, ics_metric = metric_calcs(dict_obj[option][count], metric,)
+            cols[metric_cols.index(metric)].metric(
+                name, place_metric,  # ics_metric, delta_color="inverse"
+            )
+
+
+# # OPTIONS
+# # -------------------------------------------------------------------------
+# option = st.selectbox("Select Group", (st.session_state.places))
+
+# # Group GP practice display
+# st.info(
+#     "**Selected GP Practices: **"
+#     + re.sub(
+#         "\w+:",
+#         "",
+#         str(st.session_state[option]["gps"])
+#         .replace("'", "")
+#         .replace("[", "")
+#         .replace("]", ""),
+#     )
+# )
+
+# # Group Metrics
+# st.subheader("Group Metrics")
+# st.write(
+#     "KPIs shows the normalised Need Indices of **",
+#     option,
+#     # "** compared to the **",
+#     # st.session_state[option]["ics"],
+#     " **",
+# )
+
+# # Write session state values to query vars
+# place_state = st.session_state[option]["gps"]
+# ics_state = st.session_state[option]["ics"]
+
+# # get place aggregations
+# place_query, place_indices = aggregate(
+#     data, gp_query, option, "Place Name", aggregations
+# )
+
+# # get ICS aggregations
+# ics_query1, ics_indices = aggregate(
+#     data, icb_query, st.session_state[option]["ics"], "ICS name", aggregations
+# )
+
+# # index calcs
+# place_indices1, ics_indices1 = get_index(
+#     place_indices, ics_indices, index_names, index_numerator
+# )
+# # print all data
+# ics_indices1.insert(loc=0, column="Group / ICS", value=st.session_state[option]["ics"])
+# place_indices1.insert(loc=0, column="Group / ICS", value=option)
+# df_print = pd.concat(
+#     [ics_indices1, place_indices1], axis=0, join="inner", ignore_index=True
+# )
+
+# # Metrics
+# # -------------------------------------------------------------------------
+# # First row
+# metric_cols = [
+#     "Overall Index",
+#     "G&A Index",
+#     "Community Index",
+#     "Mental Health Index",
+#     "Maternity Index",
+# ]
+
+# cols = st.columns(len(metric_cols))
+# for metric in metric_cols:
+#     place_metric, ics_metric = metric_calcs(place_indices1, metric)
+#     cols[metric_cols.index(metric)].metric(
+#         metric, place_metric,  # ics_metric, delta_color="inverse"
+#     )
+
+# # Second row
+# metric_cols = [
+#     "HCHS Index",
+#     "Prescribing Index",
+#     "Avoidable Mortality Index",
+#     "Health Inequalities Index",
+#     "blank",
+# ]
+# cols = st.columns(len(metric_cols))
+# for metric in metric_cols:
+#     if metric != "blank":
+#         place_metric, ics_metric = metric_calcs(place_indices1, metric)
+#         cols[metric_cols.index(metric)].metric(
+#             metric, place_metric,  # ics_metric, delta_color="inverse"
+#         )
+
+with st.expander("Caveats and Notes"):
+    st.markdown(
+        "- The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the G&A model."
+    )
 
 # Downloads
 # -------------------------------------------------------------------------
@@ -327,15 +448,15 @@ st.subheader("Downloads")
 print_table = st.checkbox("Preview data download")
 if print_table:
     with st.container():
-        utils.write_table(df_print)
+        utils.write_table(large_df)
 
-csv = convert_df(df_print)
-st.download_button(
-    label="Download {place} data as CSV".format(place=option),
-    data=csv,
-    file_name="{place} place based allocations.csv".format(place=option),
-    mime="text/csv",
-)
+csv = convert_df(large_df)
+# st.download_button(
+#     label="Download {place} data as CSV".format(place=option),
+#     data=csv,
+#     file_name="{place} place based allocations.csv".format(place=option),
+#     mime="text/csv",
+# )
 
 # https://stackoverflow.com/a/44946732
 zip_buffer = io.BytesIO()
@@ -343,21 +464,19 @@ with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
     for file_name, data in [
         ("ICB allocation calculations.csv", io.BytesIO(csv)),
         ("ICB allocation tool documentation.txt", io.BytesIO(b"222")),
-        ("ICB allocation tool configuration file.json", io.StringIO(session_state_dump))
+        (
+            "ICB allocation tool configuration file.json",
+            io.StringIO(session_state_dump),
+        ),
     ]:
         zip_file.writestr(file_name, data.getvalue())
 
 btn = st.download_button(
     label="Download ZIP",
     data=zip_buffer.getvalue(),
-    file_name="ICB allocation tool %s.zip" %current_date, 
+    file_name="ICB allocation tool %s.zip" % current_date,
     mime="application/zip",
 )
-
-with st.expander("Caveats and Notes"):
-    st.markdown(
-        "- The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the G&A model."
-    )
 
 # Debugging
 # -------------------------------------------------------------------------
