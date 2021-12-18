@@ -321,129 +321,66 @@ metric_names = [
     "Overall Index",
 ]
 
-for option in dict_obj:
-    st.write("**", option, "**")
-    for count, df in enumerate(dict_obj[option][1:]):  # skip first (ICB) metric
-        # Group GP practice display
-        group_name = dict_obj[option][count + 1]["Group / ICB"].item()
-        group_gps = (
-            "**"
-            + group_name
-            + " : **"
-            + re.sub(
-                "\w+:",
-                "",
-                str(st.session_state[group_name]["gps"])
-                .replace("'", "")
-                .replace("[", "")
-                .replace("]", ""),
-            )
-        )
-        st.info(group_gps)
-        cols = st.columns(len(metric_cols))
-        for metric, name in zip(metric_cols, metric_names):
-            place_metric, ics_metric = metric_calcs(dict_obj[option][count], metric,)
-            cols[metric_cols.index(metric)].metric(
-                name, place_metric,  # ics_metric, delta_color="inverse"
-            )
-
-
-# # OPTIONS
-# # -------------------------------------------------------------------------
-# option = st.selectbox("Select Group", (st.session_state.places))
-
-# # Group GP practice display
-# st.info(
-#     "**Selected GP Practices: **"
-#     + re.sub(
-#         "\w+:",
-#         "",
-#         str(st.session_state[option]["gps"])
-#         .replace("'", "")
-#         .replace("[", "")
-#         .replace("]", ""),
-#     )
-# )
-
-# # Group Metrics
-# st.subheader("Group Metrics")
-# st.write(
-#     "KPIs shows the normalised Need Indices of **",
-#     option,
-#     # "** compared to the **",
-#     # st.session_state[option]["ics"],
-#     " **",
-# )
-
-# # Write session state values to query vars
-# place_state = st.session_state[option]["gps"]
-# ics_state = st.session_state[option]["ics"]
-
-# # get place aggregations
-# place_query, place_indices = aggregate(
-#     data, gp_query, option, "Place Name", aggregations
-# )
-
-# # get ICS aggregations
-# ics_query1, ics_indices = aggregate(
-#     data, icb_query, st.session_state[option]["ics"], "ICS name", aggregations
-# )
-
-# # index calcs
-# place_indices1, ics_indices1 = get_index(
-#     place_indices, ics_indices, index_names, index_numerator
-# )
-# # print all data
-# ics_indices1.insert(loc=0, column="Group / ICS", value=st.session_state[option]["ics"])
-# place_indices1.insert(loc=0, column="Group / ICS", value=option)
-# df_print = pd.concat(
-#     [ics_indices1, place_indices1], axis=0, join="inner", ignore_index=True
-# )
-
-# # Metrics
-# # -------------------------------------------------------------------------
-# # First row
-# metric_cols = [
-#     "Overall Index",
-#     "G&A Index",
-#     "Community Index",
-#     "Mental Health Index",
-#     "Maternity Index",
-# ]
-
-# cols = st.columns(len(metric_cols))
-# for metric in metric_cols:
-#     place_metric, ics_metric = metric_calcs(place_indices1, metric)
-#     cols[metric_cols.index(metric)].metric(
-#         metric, place_metric,  # ics_metric, delta_color="inverse"
-#     )
-
-# # Second row
-# metric_cols = [
-#     "HCHS Index",
-#     "Prescribing Index",
-#     "Avoidable Mortality Index",
-#     "Health Inequalities Index",
-#     "blank",
-# ]
-# cols = st.columns(len(metric_cols))
-# for metric in metric_cols:
-#     if metric != "blank":
-#         place_metric, ics_metric = metric_calcs(place_indices1, metric)
-#         cols[metric_cols.index(metric)].metric(
-#             metric, place_metric,  # ics_metric, delta_color="inverse"
+# All metrics - didn't work well, but might be useful
+# for option in dict_obj:
+#     st.write("**", option, "**")
+#     for count, df in enumerate(dict_obj[option][1:]):  # skip first (ICB) metric
+#         # Group GP practice display
+#         group_name = dict_obj[option][count + 1]["Group / ICB"].item()
+#         group_gps = (
+#             "**"
+#             + group_name
+#             + " : **"
+#             + re.sub(
+#                 "\w+:",
+#                 "",
+#                 str(st.session_state[group_name]["gps"])
+#                 .replace("'", "")
+#                 .replace("[", "")
+#                 .replace("]", ""),
+#             )
 #         )
+#         st.info(group_gps)
+#         cols = st.columns(len(metric_cols))
+#         for metric, name in zip(metric_cols, metric_names):
+#             place_metric, ics_metric = metric_calcs(dict_obj[option][count], metric,)
+#             cols[metric_cols.index(metric)].metric(
+#                 name, place_metric,  # ics_metric, delta_color="inverse"
+#             )
 
+
+# One group at a time
+# -------------------------------------------------------------------------
+option = st.selectbox("Select Group", (st.session_state.places))
+
+icb_name = st.session_state[option]["ics"]
+group_gp_list = st.session_state[option]["gps"]
+
+# Group GP practice display
+list_of_gps = re.sub(
+    "\w+:", "", str(group_gp_list).replace("'", "").replace("[", "").replace("]", ""),
+)
+st.info("**Selected GP Practices: **" + list_of_gps)
+df = large_df.loc[large_df["Group / ICB"] == option]
+df = df.reset_index(drop=True)
+
+cols = st.columns(len(metric_cols))
+for metric, name in zip(metric_cols, metric_names):
+    place_metric, ics_metric = metric_calcs(df, metric,)
+    cols[metric_cols.index(metric)].metric(
+        name, place_metric,  # ics_metric, delta_color="inverse"
+    )
+st.write("**Selected Group ICB: **", icb_name)
 with st.expander("Caveats and Notes"):
     st.markdown(
-        "- The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the G&A model."
+        "The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
     )
 
 # Downloads
 # -------------------------------------------------------------------------
 current_date = datetime.now().strftime("%Y-%m-%d")
 
-st.subheader("Downloads")
+st.subheader("Download all Group Data")
 
 print_table = st.checkbox("Preview data download")
 if print_table:
