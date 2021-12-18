@@ -29,7 +29,9 @@ from datetime import datetime
 # 3rd party:
 import streamlit as st
 import pandas as pd
-import numpy as np
+from streamlit_folium import folium_static
+import folium
+import postcodes_io_api
 
 st.set_page_config(
     page_title="ICB Place Based Allocation Tool",
@@ -299,28 +301,6 @@ for obj in dict_obj:
 flat_list = [item for sublist in df_list for item in sublist]
 large_df = pd.concat(flat_list, ignore_index=True)
 
-
-# Metrics
-# -------------------------------------------------------------------------
-metric_cols = [
-    "G&A Index",
-    "Community Index",
-    "Mental Health Index",
-    "Maternity Index",
-    "Prescribing Index",
-    "Health Inequalities Index",
-    "Overall Index",
-]
-metric_names = [
-    "Gen & Acute",
-    "Community*",
-    "Mental Health",
-    "Maternity",
-    "Prescribing",
-    "Health Inequal",
-    "Overall Index",
-]
-
 # All metrics - didn't work well, but might be useful
 # for option in dict_obj:
 #     st.write("**", option, "**")
@@ -361,6 +341,45 @@ list_of_gps = re.sub(
     "\w+:", "", str(group_gp_list).replace("'", "").replace("[", "").replace("]", ""),
 )
 st.info("**Selected GP Practices: **" + list_of_gps)
+
+# MAP
+# -------------------------------------------------------------------------
+
+api = postcodes_io_api.Api(debug_http=True)
+m = folium.Map(location=[52, 0], zoom_start=10)
+
+for gp in group_gp_list:
+    post_code = data["GP Practice postcode"].loc[data["practice_display"] == gp].item()
+    api_results = api.get_postcode(post_code)
+    latitude = api_results["result"]["latitude"]
+    longitde = api_results["result"]["longitude"]
+    folium.Marker([latitude, longitde], popup=gp).add_to(m)
+
+# call to render Folium map in Streamlit
+folium_static(m, width=700, height=300)
+
+# Metrics
+# -------------------------------------------------------------------------
+metric_cols = [
+    "G&A Index",
+    "Community Index",
+    "Mental Health Index",
+    "Maternity Index",
+    "Prescribing Index",
+    "Health Inequalities Index",
+    "Overall Index",
+]
+metric_names = [
+    "Gen & Acute",
+    "Community*",
+    "Mental Health",
+    "Maternity",
+    "Prescribing",
+    "Health Inequal",
+    "Overall Index",
+]
+
+
 df = large_df.loc[large_df["Group / ICB"] == option]
 df = df.reset_index(drop=True)
 
