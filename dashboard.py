@@ -294,6 +294,7 @@ for obj in dict_obj:
 # flaten list for concatination
 flat_list = [item for sublist in df_list for item in sublist]
 large_df = pd.concat(flat_list, ignore_index=True)
+large_df = large_df.round(decimals = 2)
 
 # All metrics - didn't work well, but might be useful
 # for option in dict_obj:
@@ -334,7 +335,7 @@ group_gp_list = st.session_state[option]["gps"]
 # -------------------------------------------------------------------------
 
 api = postcodes_io_api.Api(debug_http=True)
-map = folium.Map(location=[52, 0], zoom_start=10)
+map = folium.Map(location=[52, 0], zoom_start=10, tiles="openstreetmap")
 lat = []
 long = []
 for gp in group_gp_list:
@@ -385,6 +386,7 @@ metric_names = [
 
 df = large_df.loc[large_df["Group / ICB"] == option]
 df = df.reset_index(drop=True)
+
 
 st.write("**Relative Need Index**")
 cols = st.columns(len(metric_cols))
