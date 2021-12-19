@@ -55,8 +55,8 @@ st.markdown(
 
 # Set default place in session
 # -------------------------------------------------------------------------
-if "Group 1" not in st.session_state:
-    st.session_state["Group 1"] = {
+if "Default Group" not in st.session_state:
+    st.session_state["Default Group"] = {
         "gps": [
             "B85005: Shepley Health Centre",
             "B85022: Honley Surgery",
@@ -66,7 +66,7 @@ if "Group 1" not in st.session_state:
         "icb": "NHS West Yorkshire ICB",
     }
 if "places" not in st.session_state:
-    st.session_state.places = ["Group 1"]
+    st.session_state.places = ["Default Group"]
 
 # Functions & Calls
 # -------------------------------------------------------------------------
@@ -191,7 +191,7 @@ practice_choice = st.sidebar.multiselect(
     help="Select GP Practices to aggregate into a single defined 'place'",
 )
 place_name = st.sidebar.text_input(
-    "Name your Group", "Group 1", help="Give your defined place a name to identify it"
+    "Name your Group", "Default Group", help="Give your defined place a name to identify it"
 )
 
 if st.sidebar.button("Save Group", help="Save group to session state", key="output",):
@@ -418,9 +418,9 @@ with st.expander("Caveats and Notes"):
 
 if st.button("Delete", help="Delete this group", key="output",):
     if len(st.session_state.places) <= 1:
-        st.warning("No groups left in memory, 'Group 1' reset to default")
-        if "Group 1" not in st.session_state:
-            st.session_state["Group 1"] = {
+        st.warning("No groups left in memory, 'Default Group' reset to default")
+        if "Default Group" not in st.session_state:
+            st.session_state["Default Group"] = {
                 "gps": [
                     "B85005: Shepley Health Centre",
                     "B85022: Honley Surgery",
