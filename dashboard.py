@@ -44,6 +44,14 @@ st.set_page_config(
         "About": "This tool is designed to support allocation at places by allowing places to be defined by aggregating GP Practices within an ICB. Please refer to the User Guide for instructions. For more information on the latest allocations, including contact details, please refer to: [https://www.england.nhs.uk/allocations/](https://www.england.nhs.uk/allocations/)",
     },
 )
+padding = 1
+st.markdown(
+    f""" <style>
+    .reportview-container .main .block-container{{
+        padding-top: {padding}rem;
+    }} </style> """,
+    unsafe_allow_html=True,
+)
 
 # Set default place in session
 # -------------------------------------------------------------------------
@@ -153,22 +161,7 @@ svg = """
 render_svg(svg)
 
 st.title("ICB Place Based Allocation Tool")
-st.markdown("Last Updated 16th December 2021")
-with st.expander("See Instructions"):
-    st.markdown(
-        "This tool is designed to support allocation at places by allowing places to be defined by aggregating GP Practices within an ICB. Please refer to the User Guide for instructions."
-    )
-    st.markdown("The tool estimates the relative need for places within the ICB.")
-    st.markdown(
-        "The Relative Need Index for ICB (i) and Defined Place (p) is given by the formula:"
-    )
-    st.latex(r""" (WP_p/GP_p)\over (WP_i/GP_i)""")
-    st.markdown(
-        "This tool is based on estimated need for 2022/23 by utilising weighted populations projected from the October 2021 GP Registered Practice Populations."
-    )
-    st.markdown(
-        "For more information on the latest allocations, including contact details, please refer to: [https://www.england.nhs.uk/allocations/](https://www.england.nhs.uk/allocations/)"
-    )
+st.markdown("Last Updated 20th December 2021")
 
 # Import Data
 # -------------------------------------------------------------------------
@@ -337,12 +330,6 @@ option = st.selectbox("Select Group", (st.session_state.places))
 icb_name = st.session_state[option]["icb"]
 group_gp_list = st.session_state[option]["gps"]
 
-# Group GP practice display
-list_of_gps = re.sub(
-    "\w+:", "", str(group_gp_list).replace("'", "").replace("[", "").replace("]", ""),
-)
-st.info("**Selected GP Practices: **" + list_of_gps)
-
 # MAP
 # -------------------------------------------------------------------------
 
@@ -358,13 +345,21 @@ for gp in group_gp_list:
     lat.append(latitude)
     long.append(longitde)
     folium.Marker(
-        [latitude, longitde], popup=str(gp), icon=folium.Icon(color="blue")
+        [latitude, longitde],
+        popup=str(gp),
+        icon=folium.Icon(color="blue", icon="plus-square", prefix="fa"),
     ).add_to(map)
 
 # bounds method https://stackoverflow.com/a/58185815
 map.fit_bounds([[min(lat), min(long)], [max(lat), max(long)]])
 # call to render Folium map in Streamlit
 folium_static(map, width=700, height=300)
+
+# Group GP practice display
+list_of_gps = re.sub(
+    "\w+:", "", str(group_gp_list).replace("'", "").replace("[", "").replace("]", ""),
+)
+st.info("**Selected GP Practices: **" + list_of_gps)
 
 # Metrics
 # -------------------------------------------------------------------------
@@ -391,13 +386,29 @@ metric_names = [
 df = large_df.loc[large_df["Group / ICB"] == option]
 df = df.reset_index(drop=True)
 
+st.write("**Relative Need Index**")
 cols = st.columns(len(metric_cols))
 for metric, name in zip(metric_cols, metric_names):
     place_metric, ics_metric = metric_calcs(df, metric,)
     cols[metric_cols.index(metric)].metric(
         name, place_metric,  # ics_metric, delta_color="inverse"
     )
-st.write("**Selected Group ICB: **", icb_name)
+
+with st.expander("About the ICB Place Based Allocation Tool"):
+    st.markdown(
+        "This tool is designed to support allocation at places by allowing places to be defined by aggregating GP Practices within an ICB. Please refer to the User Guide for instructions."
+    )
+    st.markdown("The tool estimates the relative need for places within the ICB.")
+    st.markdown(
+        "The Relative Need Index for ICB (i) and Defined Place (p) is given by the formula:"
+    )
+    st.latex(r""" (WP_p/GP_p)\over (WP_i/GP_i)""")
+    st.markdown(
+        "This tool is based on estimated need for 2022/23 by utilising weighted populations projected from the October 2021 GP Registered Practice Populations."
+    )
+    st.markdown(
+        "For more information on the latest allocations, including contact details, please refer to: [https://www.england.nhs.uk/allocations/](https://www.england.nhs.uk/allocations/)"
+    )
 with st.expander("Caveats and Notes"):
     st.markdown(
         "The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
@@ -432,12 +443,6 @@ if print_table:
         utils.write_table(large_df)
 
 csv = convert_df(large_df)
-# st.download_button(
-#     label="Download {place} data as CSV".format(place=option),
-#     data=csv,
-#     file_name="{place} place based allocations.csv".format(place=option),
-#     mime="text/csv",
-# )
 
 # https://stackoverflow.com/a/44946732
 zip_buffer = io.BytesIO()

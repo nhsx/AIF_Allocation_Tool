@@ -35,9 +35,9 @@ def store_data():
 # Sidebar dropdown list
 @st.cache
 def get_sidebar(data):
-    ics = data["ICB name"].unique().tolist()
-    ics.sort()
-    return ics
+    icb = data["ICB name"].unique().tolist()
+    icb.sort()
+    return icb
 
 
 def write_table(data):
