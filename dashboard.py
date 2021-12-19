@@ -347,7 +347,7 @@ for gp in group_gp_list:
     folium.Marker(
         [latitude, longitde],
         popup=str(gp),
-        icon=folium.Icon(color="blue", icon="plus-square", prefix="fa"),
+        icon=folium.Icon(color="blue", icon="fa-user-md", prefix="fa"),
     ).add_to(map)
 
 # bounds method https://stackoverflow.com/a/58185815
