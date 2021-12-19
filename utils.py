@@ -35,7 +35,7 @@ def store_data():
 # Sidebar dropdown list
 @st.cache
 def get_sidebar(data):
-    ics = data["ICS name"].unique().tolist()
+    ics = data["ICB name"].unique().tolist()
     ics.sort()
     return ics
 

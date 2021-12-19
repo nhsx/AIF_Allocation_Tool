@@ -50,11 +50,12 @@ st.set_page_config(
 if "Group 1" not in st.session_state:
     st.session_state["Group 1"] = {
         "gps": [
-            "J81083: Sixpenny Handley Surgery",
-            "J83001: Merchiston Surgery",
-            "J83002: Westrop Medical Practice",
+            "B85005: Shepley Health Centre",
+            "B85022: Honley Surgery",
+            "B85061: Skelmanthorpe Family Doctors",
+            "B85026: Kirkburton Health Centre",
         ],
-        "ics": "NHS Bath and North East Somerset, Swindon and Wiltshire ICB",
+        "icb": "NHS West Yorkshire ICB",
     }
 if "places" not in st.session_state:
     st.session_state.places = ["Group 1"]
@@ -159,7 +160,7 @@ with st.expander("See Instructions"):
     )
     st.markdown("The tool estimates the relative need for places within the ICB.")
     st.markdown(
-        "The Relative Need Index for ICS (i) and Defined Place (p) is given by the formula:"
+        "The Relative Need Index for ICB (i) and Defined Place (p) is given by the formula:"
     )
     st.latex(r""" (WP_p/GP_p)\over (WP_i/GP_i)""")
     st.markdown(
@@ -172,19 +173,19 @@ with st.expander("See Instructions"):
 # Import Data
 # -------------------------------------------------------------------------
 data = utils.get_data()
-ics = utils.get_sidebar(data)
+icb = utils.get_sidebar(data)
 
 # SIDEBAR
 # -------------------------------------------------------------------------
 st.sidebar.subheader("Create New Group")
-ics_choice = st.sidebar.selectbox("ICB Filter:", ics, help="Select an ICS")
-lad = data["LA District name"].loc[data["ICS name"] == ics_choice].unique().tolist()
+icb_choice = st.sidebar.selectbox("ICB Filter:", icb, help="Select an ICB")
+lad = data["LA District name"].loc[data["ICB name"] == icb_choice].unique().tolist()
 lad_choice = st.sidebar.multiselect(
     "Local Authority District Filter:", lad, help="Select a Local Authority District"
 )
 if lad_choice == []:
     practices = (
-        data["practice_display"].loc[data["ICS name"] == ics_choice].unique().tolist()
+        data["practice_display"].loc[data["ICB name"] == icb_choice].unique().tolist()
     )
 else:
     practices = (
@@ -199,20 +200,20 @@ practice_choice = st.sidebar.multiselect(
 place_name = st.sidebar.text_input(
     "Name your Group", "Group 1", help="Give your defined place a name to identify it"
 )
+
 if st.sidebar.button("Save Group", help="Save group to session state", key="output",):
     if practice_choice == []:
         st.sidebar.error("Please select one or more GP practices")
     else:
         if [place_name] not in st.session_state:
-            st.session_state[place_name] = {"gps": practice_choice, "ics": ics_choice}
+            st.session_state[place_name] = {
+                "gps": practice_choice,
+                "icb": icb_choice,
+            }
         if "places" not in st.session_state:
             st.session_state.places = [place_name]
         if place_name not in st.session_state.places:
             st.session_state.places = st.session_state.places + [place_name]
-
-# if st.sidebar.button("Reset Group", key="output"):
-#    del st.session_state[place_name]
-#    st.session_state.places = st.session_state.places
 
 session_state_dict = dict.fromkeys(st.session_state.places, [])
 for key, value in session_state_dict.items():
@@ -257,14 +258,14 @@ debug = st.sidebar.checkbox("Show Session State")
 # -------------------------------------------------------------------------
 
 gp_query = "practice_display == @place_state"
-icb_query = "`ICS name` == @icb_state"  # escape column names with backticks https://stackoverflow.com/a/56157729
+icb_query = "`ICB name` == @icb_state"  # escape column names with backticks https://stackoverflow.com/a/56157729
 
 # dict to store all dfs sorted by ICB
 dict_obj = {}
 df_list = []
 for place in st.session_state.places:
     place_state = st.session_state[place]["gps"]
-    icb_state = st.session_state[place]["ics"]
+    icb_state = st.session_state[place]["icb"]
     # get place aggregations
     place_data, place_groupby = aggregate(
         data, gp_query, place, "Place Name", aggregations
@@ -333,7 +334,7 @@ large_df = pd.concat(flat_list, ignore_index=True)
 # -------------------------------------------------------------------------
 option = st.selectbox("Select Group", (st.session_state.places))
 
-icb_name = st.session_state[option]["ics"]
+icb_name = st.session_state[option]["icb"]
 group_gp_list = st.session_state[option]["gps"]
 
 # Group GP practice display
@@ -346,17 +347,24 @@ st.info("**Selected GP Practices: **" + list_of_gps)
 # -------------------------------------------------------------------------
 
 api = postcodes_io_api.Api(debug_http=True)
-m = folium.Map(location=[52, 0], zoom_start=10)
-
+map = folium.Map(location=[52, 0], zoom_start=10)
+lat = []
+long = []
 for gp in group_gp_list:
     post_code = data["GP Practice postcode"].loc[data["practice_display"] == gp].item()
     api_results = api.get_postcode(post_code)
     latitude = api_results["result"]["latitude"]
     longitde = api_results["result"]["longitude"]
-    folium.Marker([latitude, longitde], popup=gp).add_to(m)
+    lat.append(latitude)
+    long.append(longitde)
+    folium.Marker(
+        [latitude, longitde], popup=str(gp), icon=folium.Icon(color="blue")
+    ).add_to(map)
 
+# bounds method https://stackoverflow.com/a/58185815
+map.fit_bounds([[min(lat), min(long)], [max(lat), max(long)]])
 # call to render Folium map in Streamlit
-folium_static(m, width=700, height=300)
+folium_static(map, width=700, height=300)
 
 # Metrics
 # -------------------------------------------------------------------------
@@ -394,6 +402,23 @@ with st.expander("Caveats and Notes"):
     st.markdown(
         "The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
     )
+
+if st.button("Delete", help="Delete this group", key="output",):
+    if len(st.session_state.places) <= 1:
+        st.warning("No groups left in memory, 'Group 1' reset to default")
+        if "Group 1" not in st.session_state:
+            st.session_state["Group 1"] = {
+                "gps": [
+                    "B85005: Shepley Health Centre",
+                    "B85022: Honley Surgery",
+                    "B85061: Skelmanthorpe Family Doctors",
+                    "B85026: Kirkburton Health Centre",
+                ],
+                "icb": "NHS West Yorkshire ICB",
+            }
+    else:
+        del st.session_state[option]
+        del st.session_state.places[option]
 
 # Downloads
 # -------------------------------------------------------------------------
