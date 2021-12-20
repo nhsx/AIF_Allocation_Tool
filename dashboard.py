@@ -7,7 +7,6 @@
 """
 FILE:           dashboard.py
 DESCRIPTION:    Streamlit weighted capitation tool
-USAGE:
 CONTRIBUTORS:   Craig Shenton, Jonathan Pearson, Mattia Ficarelli   
 CONTACT:        england.revenue-allocations@nhs.net
 CREATED:        2021-12-14
@@ -472,12 +471,15 @@ if print_table:
 
 csv = convert_df(large_df)
 
+with open("docs/ICB allocation tool documentation.txt", "rb") as fh:
+    readme_text = io.BytesIO(fh.read())
+
 # https://stackoverflow.com/a/44946732
 zip_buffer = io.BytesIO()
 with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
     for file_name, data in [
         ("ICB allocation calculations.csv", io.BytesIO(csv)),
-        ("ICB allocation tool documentation.txt", io.BytesIO(b"222")),
+        ("ICB allocation tool documentation.txt", readme_text),
         (
             "ICB allocation tool configuration file.json",
             io.StringIO(session_state_dump),
