@@ -268,7 +268,6 @@ label = "Delete Current Selection"
 delete_place = st.button(label, help=label)
 if delete_place:
     if len(st.session_state.places) <= 1:
-        st.warning("'Default Place' reset to default")
         if "Default Group" not in st.session_state:
             st.session_state["Default Place"] = {
                 "gps": [
@@ -279,6 +278,10 @@ if delete_place:
                 ],
                 "icb": "NHS West Yorkshire ICB",
             }
+        st.session_state.after = "Default Place"
+        st.warning(
+            "All places deleted. 'Default Place' reset to default. Please create a new place."
+        )
     else:
         del [st.session_state[st.session_state.after]]
         del [
@@ -460,7 +463,7 @@ for metric, name in zip(metric_cols, metric_names):
 # -------------------------------------------------------------------------
 current_date = datetime.now().strftime("%Y-%m-%d")
 
-st.subheader("Download all Place Data")
+st.subheader("Download Data")
 
 print_table = st.checkbox("Preview data download", value=True)
 if print_table:
