@@ -6,10 +6,10 @@
 
 """
 FILE:           dashboard.py
-DESCRIPTION:    streamlit weighted capitation tool
+DESCRIPTION:    Streamlit weighted capitation tool
 USAGE:
-CONTRIBUTORS:   
-CONTACT:        
+CONTRIBUTORS:   Craig Shenton, Jonathan Pearson, Mattia Ficarelli   
+CONTACT:        data@nhsx.nhs.uk
 CREATED:        2021
 VERSION:        0.0.2
 """
@@ -431,9 +431,6 @@ if st.button("Delete", help="Delete this group", key="output",):
     else:
         del [st.session_state[option]]
         del [st.session_state.places]
-
-        #del st.session_state[option]
-        #del st.session_state.places[option]
 
 # Downloads
 # -------------------------------------------------------------------------
