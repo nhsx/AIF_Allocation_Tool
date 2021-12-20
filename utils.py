@@ -22,6 +22,7 @@ def get_data():
             "WP_Overall": "Overall Weighted pop",
         }
     )
+    df = df.fillna(1).replace(0, 1)
     df["practice_display"] = df["GP Practice code"] + ": " + df["GP Practice name"]
     return df
 
