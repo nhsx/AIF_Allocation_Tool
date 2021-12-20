@@ -295,7 +295,7 @@ for obj in dict_obj:
 flat_list = [item for sublist in df_list for item in sublist]
 large_df = pd.concat(flat_list, ignore_index=True)
 large_df = large_df.round(decimals = 3)
-order = [0,-1,-2,-3,-4,-5,-6,-7,-8,-9,1,2,3,4,5,6,7,8,9,10] # setting column's order
+order = [0,-9,-8,-7,-6,-5,-4,-2, -3,-1,1,2,3,4,5,6,7,8,9,10] # setting column's order
 large_df = large_df[[large_df.columns[i] for i in order]]
 
 # All metrics - didn't work well, but might be useful
