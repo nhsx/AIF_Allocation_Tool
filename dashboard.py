@@ -328,7 +328,8 @@ large_df = large_df[[large_df.columns[i] for i in order]]
 
 # One group at a time
 # -------------------------------------------------------------------------
-option = st.selectbox("Select Group", (st.session_state.places))
+select_index = len(st.session_state.places) - 1
+option = st.selectbox("Select Group", (st.session_state.places), index = select_index)
 icb_name = st.session_state[option]["icb"]
 group_gp_list = st.session_state[option]["gps"]
 
