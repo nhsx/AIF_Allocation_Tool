@@ -495,7 +495,7 @@ btn = st.download_button(
 )
 st.markdown("")
 st.info(
-    "**Help and Support** For queries on Allocations or support with using the AIF Allocation tool please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)"
+    "**Help and Support:** For queries on Allocations or support with using the AIF Allocation tool please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)"
 )
 
 # Debugging
