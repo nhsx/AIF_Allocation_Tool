@@ -327,7 +327,6 @@ large_df = large_df.round(decimals = 2)
 # One group at a time
 # -------------------------------------------------------------------------
 option = st.selectbox("Select Group", (st.session_state.places))
-
 icb_name = st.session_state[option]["icb"]
 group_gp_list = st.session_state[option]["gps"]
 
@@ -430,8 +429,11 @@ if st.button("Delete", help="Delete this group", key="output",):
                 "icb": "NHS West Yorkshire ICB",
             }
     else:
-        del st.session_state[option]
-        del st.session_state.places[option]
+        del [st.session_state[option]]
+        del [st.session_state.places]
+
+        #del st.session_state[option]
+        #del st.session_state.places[option]
 
 # Downloads
 # -------------------------------------------------------------------------
