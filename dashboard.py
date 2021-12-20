@@ -55,8 +55,8 @@ st.markdown(
 
 # Set default place in session
 # -------------------------------------------------------------------------
-if "Default Group" not in st.session_state:
-    st.session_state["Default Group"] = {
+if "Default Place" not in st.session_state:
+    st.session_state["Default Place"] = {
         "gps": [
             "B85005: Shepley Health Centre",
             "B85022: Honley Surgery",
@@ -66,7 +66,7 @@ if "Default Group" not in st.session_state:
         "icb": "NHS West Yorkshire ICB",
     }
 if "places" not in st.session_state:
-    st.session_state.places = ["Default Group"]
+    st.session_state.places = ["Default Place"]
 
 # Functions & Calls
 # -------------------------------------------------------------------------
@@ -171,7 +171,7 @@ icb = utils.get_sidebar(data)
 
 # SIDEBAR
 # -------------------------------------------------------------------------
-st.sidebar.subheader("Create New Group")
+st.sidebar.subheader("Create New Place")
 
 icb_choice = st.sidebar.selectbox("ICB Filter:", icb, help="Select an ICB")
 lad = data["LA District name"].loc[data["ICB name"] == icb_choice].unique().tolist()
@@ -193,12 +193,12 @@ practice_choice = st.sidebar.multiselect(
     help="Select GP Practices to aggregate into a single defined 'place'",
 )
 place_name = st.sidebar.text_input(
-    "Name your Group",
-    "Default Group",
+    "Name your Place",
+    "Default Place",
     help="Give your defined place a name to identify it",
 )
 
-if st.sidebar.button("Save Group", help="Save group to session state"):
+if st.sidebar.button("Save Place", help="Save place to session state"):
     if practice_choice == []:
         st.sidebar.error("Please select one or more GP practices")
     else:
@@ -256,16 +256,21 @@ debug = st.sidebar.checkbox("Show Session State")
 select_index = len(st.session_state.places) - 1  # find n-1 index
 placeholder = st.empty()
 option = placeholder.selectbox(
-    "Select Group", (st.session_state.places), index=select_index, key="before"
+    "Select Place", (st.session_state.places), index=select_index, key="before"
 )
+
+# DELETE PLACE
+# -------------------------------------------------------------------------
 if "after" not in st.session_state:
     st.session_state.after = st.session_state.before
-delete_place = st.button("Delete", help="Delete groups")
+
+label = "Delete Current Selection"
+delete_place = st.button(label, help=label)
 if delete_place:
     if len(st.session_state.places) <= 1:
-        st.warning("No groups left in memory, 'Default Group' reset to default")
+        st.warning("'Default Place' reset to default")
         if "Default Group" not in st.session_state:
-            st.session_state["Default Group"] = {
+            st.session_state["Default Place"] = {
                 "gps": [
                     "B85005: Shepley Health Centre",
                     "B85022: Honley Surgery",
@@ -284,8 +289,43 @@ if delete_place:
 
 select_index = len(st.session_state.places) - 1  # find n-1 index
 option = placeholder.selectbox(
-    "Select Group", (st.session_state.places), index=select_index, key="after"
+    "Select Place", (st.session_state.places), index=select_index, key="after"
 )
+icb_name = st.session_state[st.session_state.after]["icb"]
+group_gp_list = st.session_state[st.session_state.after]["gps"]
+
+# MAP
+# -------------------------------------------------------------------------
+
+api = postcodes_io_api.Api(debug_http=True)
+map = folium.Map(location=[52, 0], zoom_start=10, tiles="openstreetmap")
+lat = []
+long = []
+for gp in group_gp_list:
+    post_code = data["GP Practice postcode"].loc[data["practice_display"] == gp].item()
+    api_results = api.get_postcode(post_code)
+    latitude = api_results["result"]["latitude"]
+    longitde = api_results["result"]["longitude"]
+    lat.append(latitude)
+    long.append(longitde)
+    folium.Marker(
+        [latitude, longitde],
+        popup=str(gp),
+        icon=folium.Icon(color="blue", icon="fa-user-md", prefix="fa"),
+    ).add_to(map)
+
+# bounds method https://stackoverflow.com/a/58185815
+map.fit_bounds(
+    [[min(lat) - 0.02, min(long)], [max(lat) + 0.02, max(long)]]
+)  # add buffer to north
+# call to render Folium map in Streamlit
+folium_static(map, width=700, height=300)
+
+# Group GP practice display
+list_of_gps = re.sub(
+    "\w+:", "", str(group_gp_list).replace("'", "").replace("[", "").replace("]", ""),
+)
+st.info("**Selected GP Practices: **" + list_of_gps)
 
 gp_query = "practice_display == @place_state"
 icb_query = "`ICB name` == @icb_state"  # escape column names with backticks https://stackoverflow.com/a/56157729
@@ -308,8 +348,8 @@ for place in st.session_state.places:
     place_indices, icb_indices = get_index(
         place_groupby, icb_groupby, index_names, index_numerator
     )
-    icb_indices.insert(loc=0, column="Group / ICB", value=icb_state)
-    place_indices.insert(loc=0, column="Group / ICB", value=place)
+    icb_indices.insert(loc=0, column="Place / ICB", value=icb_state)
+    place_indices.insert(loc=0, column="Place / ICB", value=place)
 
     if icb_state not in dict_obj:
         dict_obj[icb_state] = [icb_indices, place_indices]
@@ -383,42 +423,6 @@ large_df = large_df[[large_df.columns[i] for i in order]]
 #                 name, place_metric,  # ics_metric, delta_color="inverse"
 #             )
 
-icb_name = st.session_state[option]["icb"]
-group_gp_list = st.session_state[option]["gps"]
-
-# MAP
-# -------------------------------------------------------------------------
-
-api = postcodes_io_api.Api(debug_http=True)
-map = folium.Map(location=[52, 0], zoom_start=10, tiles="openstreetmap")
-lat = []
-long = []
-for gp in group_gp_list:
-    post_code = data["GP Practice postcode"].loc[data["practice_display"] == gp].item()
-    api_results = api.get_postcode(post_code)
-    latitude = api_results["result"]["latitude"]
-    longitde = api_results["result"]["longitude"]
-    lat.append(latitude)
-    long.append(longitde)
-    folium.Marker(
-        [latitude, longitde],
-        popup=str(gp),
-        icon=folium.Icon(color="blue", icon="fa-user-md", prefix="fa"),
-    ).add_to(map)
-
-# bounds method https://stackoverflow.com/a/58185815
-map.fit_bounds(
-    [[min(lat) - 0.02, min(long)], [max(lat) + 0.02, max(long)]]
-)  # add buffer to north
-# call to render Folium map in Streamlit
-folium_static(map, width=700, height=300)
-
-# Group GP practice display
-list_of_gps = re.sub(
-    "\w+:", "", str(group_gp_list).replace("'", "").replace("[", "").replace("]", ""),
-)
-st.info("**Selected GP Practices: **" + list_of_gps)
-
 # Metrics
 # -------------------------------------------------------------------------
 metric_cols = [
@@ -441,7 +445,7 @@ metric_names = [
 ]
 
 
-df = large_df.loc[large_df["Group / ICB"] == option]
+df = large_df.loc[large_df["Place / ICB"] == st.session_state.after]
 df = df.reset_index(drop=True)
 
 st.write("**Relative Need Index**")
@@ -452,35 +456,13 @@ for metric, name in zip(metric_cols, metric_names):
         name, place_metric,  # ics_metric, delta_color="inverse"
     )
 
-with st.expander("About the ICB Place Based Allocation Tool"):
-    st.subheader("Allocations")
-    st.markdown(
-        "This tool is designed to support allocation at places by allowing places to be defined by aggregating GP Practices within an ICB. Please refer to the User Guide for instructions."
-    )
-    st.markdown("The tool estimates the relative need for places within the ICB.")
-    st.markdown(
-        "The Relative Need Index for ICB (i) and Defined Place (p) is given by the formula:"
-    )
-    st.latex(r""" (WP_p/GP_p)\over (WP_i/GP_i)""")
-    st.markdown(
-        "This tool is based on estimated need for 2022/23 by utilising weighted populations projected from the October 2021 GP Registered Practice Populations."
-    )
-    st.markdown(
-        "More information on the latest allocations, including contact details, can be found [here](https://www.england.nhs.uk/allocations/)."
-    )
-    st.subheader("Caveats and Notes")
-    st.markdown(
-        "1. The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
-    )
-    st.markdown("")
-
 # Downloads
 # -------------------------------------------------------------------------
 current_date = datetime.now().strftime("%Y-%m-%d")
 
-st.subheader("Download all Group Data")
+st.subheader("Download all Place Data")
 
-print_table = st.checkbox("Preview data download")
+print_table = st.checkbox("Preview data download", value=True)
 if print_table:
     with st.container():
         utils.write_table(large_df)
@@ -506,9 +488,31 @@ btn = st.download_button(
     file_name="ICB allocation tool %s.zip" % current_date,
     mime="application/zip",
 )
-st.markdown("")
+
+st.subheader("Help and Support")
+with st.expander("About the ICB Place Based Allocation Tool"):
+    st.subheader("Allocations")
+    st.markdown(
+        "This tool is designed to support allocation at places by allowing places to be defined by aggregating GP Practices within an ICB. Please refer to the User Guide for instructions."
+    )
+    st.markdown("The tool estimates the relative need for places within the ICB.")
+    st.markdown(
+        "The Relative Need Index for ICB (i) and Defined Place (p) is given by the formula:"
+    )
+    st.latex(r""" (WP_p/GP_p)\over (WP_i/GP_i)""")
+    st.markdown(
+        "This tool is based on estimated need for 2022/23 by utilising weighted populations projected from the October 2021 GP Registered Practice Populations."
+    )
+    st.markdown(
+        "More information on the latest allocations, including contact details, can be found [here](https://www.england.nhs.uk/allocations/)."
+    )
+    st.subheader("Caveats and Notes")
+    st.markdown(
+        "1. The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
+    )
+    st.markdown("")
 st.info(
-    "**Help and Support:** For queries on Allocations or support with using the AIF Allocation tool please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)"
+    "For support with using the AIF Allocation tool please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)"
 )
 
 # Debugging
