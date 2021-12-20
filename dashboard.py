@@ -415,7 +415,7 @@ with st.expander("Caveats and Notes"):
         "The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
     )
 
-if st.button("Delete", help="Delete this group", key="output",):
+if st.button("Delete", help="Delete groups", key="output",):
     if len(st.session_state.places) <= 1:
         st.warning("No groups left in memory, 'Default Group' reset to default")
         if "Default Group" not in st.session_state:
