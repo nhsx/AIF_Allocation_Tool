@@ -467,6 +467,9 @@ btn = st.download_button(
     mime="application/zip",
 )
 
+st.markdown(
+        "**Need more help?** For queries on CCG Allocations or suggestions for ACRA’s work programme please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)")
+
 # Debugging
 # -------------------------------------------------------------------------
 if debug:
