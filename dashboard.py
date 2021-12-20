@@ -294,7 +294,7 @@ for obj in dict_obj:
 # flaten list for concatination
 flat_list = [item for sublist in df_list for item in sublist]
 large_df = pd.concat(flat_list, ignore_index=True)
-large_df = large_df.round(decimals = 2)
+large_df = large_df.round(decimals = 3)
 
 # All metrics - didn't work well, but might be useful
 # for option in dict_obj:
