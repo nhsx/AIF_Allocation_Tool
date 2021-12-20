@@ -9,9 +9,9 @@ FILE:           dashboard.py
 DESCRIPTION:    Streamlit weighted capitation tool
 USAGE:
 CONTRIBUTORS:   Craig Shenton, Jonathan Pearson, Mattia Ficarelli   
-CONTACT:        data@nhsx.nhs.uk
-CREATED:        2021
-VERSION:        0.0.2
+CONTACT:        england.revenue-allocations@nhs.net
+CREATED:        2021-12-14
+VERSION:        0.0.1
 """
 
 # Libraries
@@ -172,6 +172,7 @@ icb = utils.get_sidebar(data)
 # SIDEBAR
 # -------------------------------------------------------------------------
 st.sidebar.subheader("Create New Group")
+
 icb_choice = st.sidebar.selectbox("ICB Filter:", icb, help="Select an ICB")
 lad = data["LA District name"].loc[data["ICB name"] == icb_choice].unique().tolist()
 lad_choice = st.sidebar.multiselect(
@@ -197,7 +198,7 @@ place_name = st.sidebar.text_input(
     help="Give your defined place a name to identify it",
 )
 
-if st.sidebar.button("Save Group", help="Save group to session state", key="output",):
+if st.sidebar.button("Save Group", help="Save group to session state"):
     if practice_choice == []:
         st.sidebar.error("Please select one or more GP practices")
     else:
@@ -249,9 +250,42 @@ if advanced_options:
 
 debug = st.sidebar.checkbox("Show Session State")
 
-
 # BODY
 # -------------------------------------------------------------------------
+
+select_index = len(st.session_state.places) - 1  # find n-1 index
+placeholder = st.empty()
+option = placeholder.selectbox(
+    "Select Group", (st.session_state.places), index=select_index, key="before"
+)
+if "after" not in st.session_state:
+    st.session_state.after = st.session_state.before
+delete_place = st.button("Delete", help="Delete groups")
+if delete_place:
+    if len(st.session_state.places) <= 1:
+        st.warning("No groups left in memory, 'Default Group' reset to default")
+        if "Default Group" not in st.session_state:
+            st.session_state["Default Group"] = {
+                "gps": [
+                    "B85005: Shepley Health Centre",
+                    "B85022: Honley Surgery",
+                    "B85061: Skelmanthorpe Family Doctors",
+                    "B85026: Kirkburton Health Centre",
+                ],
+                "icb": "NHS West Yorkshire ICB",
+            }
+    else:
+        del [st.session_state[st.session_state.after]]
+        del [
+            st.session_state.places[
+                st.session_state.places.index(st.session_state.after)
+            ]
+        ]
+
+select_index = len(st.session_state.places) - 1  # find n-1 index
+option = placeholder.selectbox(
+    "Select Group", (st.session_state.places), index=select_index, key="after"
+)
 
 gp_query = "practice_display == @place_state"
 icb_query = "`ICB name` == @icb_state"  # escape column names with backticks https://stackoverflow.com/a/56157729
@@ -349,11 +383,6 @@ large_df = large_df[[large_df.columns[i] for i in order]]
 #                 name, place_metric,  # ics_metric, delta_color="inverse"
 #             )
 
-
-# One group at a time
-# -------------------------------------------------------------------------
-select_index = len(st.session_state.places) - 1  # find n-1 index
-option = st.selectbox("Select Group", (st.session_state.places), index=select_index)
 icb_name = st.session_state[option]["icb"]
 group_gp_list = st.session_state[option]["gps"]
 
@@ -378,7 +407,9 @@ for gp in group_gp_list:
     ).add_to(map)
 
 # bounds method https://stackoverflow.com/a/58185815
-map.fit_bounds([[min(lat), min(long)], [max(lat), max(long)]])
+map.fit_bounds(
+    [[min(lat) - 0.02, min(long)], [max(lat) + 0.02, max(long)]]
+)  # add buffer to north
 # call to render Folium map in Streamlit
 folium_static(map, width=700, height=300)
 
@@ -413,7 +444,6 @@ metric_names = [
 df = large_df.loc[large_df["Group / ICB"] == option]
 df = df.reset_index(drop=True)
 
-
 st.write("**Relative Need Index**")
 cols = st.columns(len(metric_cols))
 for metric, name in zip(metric_cols, metric_names):
@@ -443,23 +473,6 @@ with st.expander("About the ICB Place Based Allocation Tool"):
         "1. The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
     )
     st.markdown("")
-
-if st.button("Delete", help="Delete groups", key="output",):
-    if len(st.session_state.places) <= 1:
-        st.warning("No groups left in memory, 'Default Group' reset to default")
-        if "Default Group" not in st.session_state:
-            st.session_state["Default Group"] = {
-                "gps": [
-                    "B85005: Shepley Health Centre",
-                    "B85022: Honley Surgery",
-                    "B85061: Skelmanthorpe Family Doctors",
-                    "B85026: Kirkburton Health Centre",
-                ],
-                "icb": "NHS West Yorkshire ICB",
-            }
-    else:
-        del [st.session_state[option]]
-        del [st.session_state.places]
 
 # Downloads
 # -------------------------------------------------------------------------
