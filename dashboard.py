@@ -93,6 +93,7 @@ def get_index(place_indices, ics_indices, index_names, index_numerator):
     return place_indices, ics_indices
 
 
+# render svg image
 def render_svg(svg):
     """Renders the given svg string."""
     b64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
@@ -191,7 +192,9 @@ practice_choice = st.sidebar.multiselect(
     help="Select GP Practices to aggregate into a single defined 'place'",
 )
 place_name = st.sidebar.text_input(
-    "Name your Group", "Default Group", help="Give your defined place a name to identify it"
+    "Name your Group",
+    "Default Group",
+    help="Give your defined place a name to identify it",
 )
 
 if st.sidebar.button("Save Group", help="Save group to session state", key="output",):
@@ -294,8 +297,29 @@ for obj in dict_obj:
 # flaten list for concatination
 flat_list = [item for sublist in df_list for item in sublist]
 large_df = pd.concat(flat_list, ignore_index=True)
-large_df = large_df.round(decimals = 3)
-order = [0,-9,-8,-7,-6,-5,-4,-2, -3,-1,1,2,3,4,5,6,7,8,9,10] # setting column's order
+large_df = large_df.round(decimals=3)
+order = [
+    0,
+    -9,
+    -8,
+    -7,
+    -6,
+    -5,
+    -4,
+    -2,
+    -3,
+    -1,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+]  # setting column's order
 large_df = large_df[[large_df.columns[i] for i in order]]
 
 # All metrics - didn't work well, but might be useful
@@ -328,8 +352,8 @@ large_df = large_df[[large_df.columns[i] for i in order]]
 
 # One group at a time
 # -------------------------------------------------------------------------
-select_index = len(st.session_state.places) - 1
-option = st.selectbox("Select Group", (st.session_state.places), index = select_index)
+select_index = len(st.session_state.places) - 1  # find n-1 index
+option = st.selectbox("Select Group", (st.session_state.places), index=select_index)
 icb_name = st.session_state[option]["icb"]
 group_gp_list = st.session_state[option]["gps"]
 
@@ -399,6 +423,7 @@ for metric, name in zip(metric_cols, metric_names):
     )
 
 with st.expander("About the ICB Place Based Allocation Tool"):
+    st.subheader("Allocations")
     st.markdown(
         "This tool is designed to support allocation at places by allowing places to be defined by aggregating GP Practices within an ICB. Please refer to the User Guide for instructions."
     )
@@ -413,10 +438,11 @@ with st.expander("About the ICB Place Based Allocation Tool"):
     st.markdown(
         "More information on the latest allocations, including contact details, can be found [here](https://www.england.nhs.uk/allocations/)."
     )
-with st.expander("Caveats and Notes"):
+    st.subheader("Caveats and Notes")
     st.markdown(
-        "The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
+        "1. The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
     )
+    st.markdown("")
 
 if st.button("Delete", help="Delete groups", key="output",):
     if len(st.session_state.places) <= 1:
@@ -467,9 +493,10 @@ btn = st.download_button(
     file_name="ICB allocation tool %s.zip" % current_date,
     mime="application/zip",
 )
-
-st.markdown(
-        "**Need more help?** For queries on CCG Allocations or suggestions for ACRA’s work programme please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)")
+st.markdown("")
+st.info(
+    "**Help and Support** For queries on Allocations or support with using the AIF Allocation tool please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)"
+)
 
 # Debugging
 # -------------------------------------------------------------------------
