@@ -410,7 +410,7 @@ with st.expander("About the ICB Place Based Allocation Tool"):
         "This tool is based on estimated need for 2022/23 by utilising weighted populations projected from the October 2021 GP Registered Practice Populations."
     )
     st.markdown(
-        "For more information on the latest allocations, including contact details, please refer to: [https://www.england.nhs.uk/allocations/](https://www.england.nhs.uk/allocations/)"
+        "More information on the latest allocations, including contact details, can be found [here](https://www.england.nhs.uk/allocations/)."
     )
 with st.expander("Caveats and Notes"):
     st.markdown(
