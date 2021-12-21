@@ -210,7 +210,9 @@ if st.sidebar.button("Save Place", help="Save place to session data"):
         st.sidebar.error("Please give your place a name")
     else:
         if practice_choice == []:
-            st.sidebar.error("Please select one or more GP practices")
+            print("")
+        if place_name == "Default Place":
+            print("")
         else:
             if (
                 len(st.session_state.places) <= 1
