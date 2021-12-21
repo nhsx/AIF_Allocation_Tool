@@ -228,7 +228,6 @@ if st.sidebar.button("Save Place", help="Save place to session data"):
                 if place_name not in st.session_state.places:
                     st.session_state.places = st.session_state.places + [place_name]
             else:
-                st.write(practice_choice)
                 if [place_name] not in st.session_state:
                     st.session_state[place_name] = {
                         "gps": practice_choice,
