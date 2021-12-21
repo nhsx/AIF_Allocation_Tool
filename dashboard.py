@@ -535,7 +535,7 @@ with st.expander("About the ICB Place Based Allocation Tool"):
     )
     st.subheader("Caveats and Notes")
     st.markdown(
-        "1. The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
+        "*The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
     )
     st.markdown("")
 st.info(
