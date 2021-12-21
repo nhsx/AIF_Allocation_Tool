@@ -1,6 +1,6 @@
 # ICB Place Based Allocation Tool
 
-[![Python v.3.8](https://img.shields.io/badge/python-v3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
+[![Python v3.8](https://img.shields.io/badge/python-v3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
 
 This project is a tool built in Python to assist Integrated Care Boards (ICBs) to perform need based allocation based on defined place. It uses the most recently produced GP Registered Practice Populations as well as the weighted populations calculated from the Allocation model for each of its components. More information on the Allocations process, as well as useful documentation can be found at [https://www.england.nhs.uk/allocations/](https://www.england.nhs.uk/allocations/)
 
@@ -10,22 +10,19 @@ The tool allows a new 'place' to be defined in an ICB as a cluster of GP practic
 
 ## Deployment (local)
 
-The tool has been built using Streamlit, a Python app framework that can be used to create web apps. It can be installed by using the package manager pip.
-
-```bash
-pip install streamlit
-```
+The tool has been built using Streamlit, a Python app framework that can be used to create web apps. To deploy the streamlit app locally:
 
 The project virtual environment can be activated in bash using the following command
 
 ```bash
-source venv/bin/activate
+python3 -m venv <path to virtual env>
+source <path to virtual env>/bin/activate
 ```
 
 To activate the virtual environment in Windows the following command can be used
 
 ```shell
-venv\Scripts\activate
+<path to virtual env>\Scripts\activate
 ```
 
 To explicitly install all the prerequisite packages to run the tool's script, in the terminal run the following command:
@@ -40,7 +37,13 @@ To run the tool locally, in the terminal, whilst in the directory containing the
 streamlit run dashboard.py
 ```
 
-Streamlit will then render the tool and display it in your default web browser. When run in this way, any changes to the script in your editor will change the app running locally.
+Streamlit will then render the tool and display it in your default web browser at
+
+```bash
+http://localhost:8501/
+```
+
+When run in this way, any changes to the script in your editor will change the app running locally.
 
 More information about Streamlit can be found from the following link:
 https://docs.streamlit.io/en/stable/
