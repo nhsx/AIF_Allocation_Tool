@@ -82,16 +82,16 @@ def aggregate(data, query, name, on, aggregations):
 
 
 # calculate index of weighted populations
-def get_index(place_indices, ics_indices, index_names, index_numerator):
-    ics_indices[index_names] = ics_indices[index_numerator].div(
-        ics_indices["GP pop"].values, axis=0
+def get_index(place_indices, icb_indices, index_names, index_numerator):
+    icb_indices[index_names] = icb_indices[index_numerator].div(
+        icb_indices["GP pop"].values, axis=0
     )
     place_indices[index_names] = (
         place_indices[index_numerator]
         .div(place_indices["GP pop"].values, axis=0)
-        .div(ics_indices[index_names].values, axis=0)
+        .div(icb_indices[index_names].values, axis=0)
     )
-    return place_indices, ics_indices
+    return place_indices, icb_indices
 
 
 # render svg image
@@ -110,8 +110,8 @@ def convert_df(df):
 
 def metric_calcs(group_need_indices, metric_index):
     place_metric = round(group_need_indices[metric_index][0].astype(float), 2)
-    ics_metric = round(place_metric - 1, 2)
-    return place_metric, ics_metric
+    icb_metric = round(place_metric - 1, 2)
+    return place_metric, icb_metric
 
 
 aggregations = {
@@ -358,9 +358,9 @@ for place in st.session_state.places:
     place_data, place_groupby = aggregate(
         data, gp_query, place, "Place Name", aggregations
     )
-    # get ICS aggregations
+    # get ICB aggregations
     icb_data, icb_groupby = aggregate(
-        data, icb_query, icb_state, "ICS name", aggregations
+        data, icb_query, icb_state, "ICB name", aggregations
     )
     # index calcs
     place_indices, icb_indices = get_index(
@@ -436,9 +436,9 @@ large_df = large_df[[large_df.columns[i] for i in order]]
 #         st.info(group_gps)
 #         cols = st.columns(len(metric_cols))
 #         for metric, name in zip(metric_cols, metric_names):
-#             place_metric, ics_metric = metric_calcs(dict_obj[option][count], metric,)
+#             place_metric, icb_metric = metric_calcs(dict_obj[option][count], metric,)
 #             cols[metric_cols.index(metric)].metric(
-#                 name, place_metric,  # ics_metric, delta_color="inverse"
+#                 name, place_metric,  # icb_metric, delta_color="inverse"
 #             )
 
 # Metrics
@@ -469,9 +469,9 @@ df = df.reset_index(drop=True)
 st.write("**Relative Need Index**")
 cols = st.columns(len(metric_cols))
 for metric, name in zip(metric_cols, metric_names):
-    place_metric, ics_metric = metric_calcs(df, metric,)
+    place_metric, icb_metric = metric_calcs(df, metric,)
     cols[metric_cols.index(metric)].metric(
-        name, place_metric,  # ics_metric, delta_color="inverse"
+        name, place_metric,  # icb_metric, delta_color="inverse"
     )
 
 # Downloads
