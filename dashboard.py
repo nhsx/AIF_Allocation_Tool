@@ -494,8 +494,6 @@ for key, value in session_state_dict.items():
 session_state_dict["places"] = st.session_state.places
 session_state_dump = json.dumps(session_state_dict, indent=4, sort_keys=False)
 
-st.session_state
-
 # https://stackoverflow.com/a/44946732
 zip_buffer = io.BytesIO()
 with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
