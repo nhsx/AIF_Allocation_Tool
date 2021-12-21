@@ -199,7 +199,7 @@ place_name = st.sidebar.text_input(
     help="Give your defined place a name to identify it",
 )
 
-if st.sidebar.button("Save Place", help="Save place to session state"):
+if st.sidebar.button("Save Place", help="Save place to session data"):
     if practice_choice == []:
         st.sidebar.error("Please select one or more GP practices")
     else:
@@ -249,7 +249,7 @@ if advanced_options:
             for place in d["places"]:
                 st.session_state[place] = d[place]
 
-debug = st.sidebar.checkbox("Show Session State")
+see_session_data = st.sidebar.checkbox("Show Session Data")
 
 # BODY
 # -------------------------------------------------------------------------
@@ -542,8 +542,8 @@ st.info(
     "For support with using the AIF Allocation tool please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)"
 )
 
-# Debugging
+# Show Session Data
 # -------------------------------------------------------------------------
-if debug:
-    st.markdown("DEBUGGING")
+if see_session_data:
+    st.subheader("Session Data")
     st.session_state
