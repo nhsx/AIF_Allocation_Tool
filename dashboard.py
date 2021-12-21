@@ -200,6 +200,7 @@ place_name = st.sidebar.text_input(
 )
 
 if st.sidebar.button("Save Place", help="Save place to session data"):
+    my_bar = st.sidebar.empty()
     if practice_choice == []:
         st.sidebar.error("Please select one or more GP practices")
     else:
@@ -212,6 +213,13 @@ if st.sidebar.button("Save Place", help="Save place to session data"):
             st.session_state.places = [place_name]
         if place_name not in st.session_state.places:
             st.session_state.places = st.session_state.places + [place_name]
+        my_bar.progress(0)
+        for percent_complete in range(100):
+            time.sleep(0.01)
+            my_bar.progress(percent_complete + 1)
+        my_bar.empty()
+
+st.sidebar.write("-" * 34)  # horizontal separator line.
 
 session_state_dict = dict.fromkeys(st.session_state.places, [])
 for key, value in session_state_dict.items():
@@ -219,8 +227,6 @@ for key, value in session_state_dict.items():
 session_state_dict["places"] = st.session_state.places
 
 session_state_dump = json.dumps(session_state_dict, indent=4, sort_keys=False)
-
-st.sidebar.write("-" * 34)  # horizontal separator line.
 
 # Use file uploaded to read in groups of practices
 advanced_options = st.sidebar.checkbox("Advanced Options")
@@ -240,14 +246,14 @@ if advanced_options:
     submit = form.form_submit_button("Submit")
     if submit:
         if group_file is not None:
-            my_bar = st.sidebar.progress(0)
-            for percent_complete in range(100):
-                time.sleep(0.01)
-                my_bar.progress(percent_complete + 1)
             d = json.load(group_file)
             st.session_state.places = d["places"]
             for place in d["places"]:
                 st.session_state[place] = d[place]
+            my_bar = st.sidebar.progress(0)
+            for percent_complete in range(100):
+                time.sleep(0.01)
+                my_bar.progress(percent_complete + 1)
 
 see_session_data = st.sidebar.checkbox("Show Session Data")
 
@@ -267,6 +273,7 @@ if "after" not in st.session_state:
 
 label = "Delete Current Selection"
 delete_place = st.button(label, help=label)
+my_bar = st.empty()
 if delete_place:
     if len(st.session_state.places) <= 1:
         del [st.session_state[st.session_state.after]]
@@ -297,6 +304,11 @@ if delete_place:
         st.warning(
             "All places deleted. 'Default Place' reset to default. Please create a new place."
         )
+        my_bar.progress(0)
+        for percent_complete in range(100):
+            time.sleep(0.01)
+            my_bar.progress(percent_complete + 1)
+        my_bar.empty()
     else:
         del [st.session_state[st.session_state.after]]
         del [
@@ -304,6 +316,11 @@ if delete_place:
                 st.session_state.places.index(st.session_state.after)
             ]
         ]
+        my_bar.progress(0)
+        for percent_complete in range(100):
+            time.sleep(0.01)
+            my_bar.progress(percent_complete + 1)
+        my_bar.empty()
 
 select_index = len(st.session_state.places) - 1  # find n-1 index
 option = placeholder.selectbox(
@@ -461,7 +478,6 @@ metric_names = [
     "Health Inequal",
     "Overall Index",
 ]
-
 
 df = large_df.loc[large_df["Place / ICB"] == st.session_state.after]
 df = df.reset_index(drop=True)
