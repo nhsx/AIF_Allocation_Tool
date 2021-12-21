@@ -195,7 +195,7 @@ practice_choice = st.sidebar.multiselect(
 )
 place_name = st.sidebar.text_input(
     "Name your Place",
-    "Default Place",
+    "",
     help="Give your defined place a name to identify it",
 )
 
@@ -209,15 +209,35 @@ if st.sidebar.button("Save Place", help="Save place to session data"):
     if place_name == "":
         st.sidebar.error("Please give your place a name")
     else:
-        if [place_name] not in st.session_state:
-            st.session_state[place_name] = {
-                "gps": practice_choice,
-                "icb": icb_choice,
-            }
-        if "places" not in st.session_state:
-            st.session_state.places = [place_name]
-        if place_name not in st.session_state.places:
-            st.session_state.places = st.session_state.places + [place_name]
+        if practice_choice == []:
+            st.sidebar.error("Please select one or more GP practices")
+        else:
+            if (
+                len(st.session_state.places) <= 1
+                and st.session_state.places[0] == "Default Place"
+            ):
+                del [st.session_state["Default Place"]]
+                del [st.session_state.places[0]]
+                if [place_name] not in st.session_state:
+                    st.session_state[place_name] = {
+                        "gps": practice_choice,
+                        "icb": icb_choice,
+                    }
+                if "places" not in st.session_state:
+                    st.session_state.places = [place_name]
+                if place_name not in st.session_state.places:
+                    st.session_state.places = st.session_state.places + [place_name]
+            else:
+                st.write(practice_choice)
+                if [place_name] not in st.session_state:
+                    st.session_state[place_name] = {
+                        "gps": practice_choice,
+                        "icb": icb_choice,
+                    }
+                if "places" not in st.session_state:
+                    st.session_state.places = [place_name]
+                if place_name not in st.session_state.places:
+                    st.session_state.places = st.session_state.places + [place_name]
 
 st.sidebar.write("-" * 34)  # horizontal separator line.
 
