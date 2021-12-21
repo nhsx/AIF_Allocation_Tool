@@ -10,7 +10,7 @@ The tool allows a new 'place' to be defined in an ICB as a cluster of GP practic
 
 ## Deployment (local)
 
-The tool has been built using Streamlit, a Python app framework that can be used to create web apps. To deploy the streamlit app locally:
+The tool has been built using Streamlit, a Python app framework that can be used to create web apps. To deploy the streamlit app locally we advise using a virtual environment (venv for example) and following the instructions below:
 
 The project virtual environment can be activated in bash using the following command
 
@@ -25,13 +25,13 @@ To activate the virtual environment in Windows the following command can be used
 <path to virtual env>\Scripts\activate
 ```
 
-To explicitly install all the prerequisite packages to run the tool's script, in the terminal run the following command:
+To install all the prerequisite packages to run the tool, in the terminal run the following command:
 
 ```shell
 pip install -r requirements.txt
 ```
 
-To run the tool locally, in the terminal, whilst in the directory containing the app run
+To run the tool locally, open a terminal whilst in the directory containing the app and run
 
 ```bash
 streamlit run dashboard.py
