@@ -277,6 +277,19 @@ if delete_place:
                 ],
                 "icb": "NHS West Yorkshire ICB",
             }
+        if "places" not in st.session_state:
+            st.session_state.places = ["Default Place"]
+        else:
+            st.session_state["Default Place"] = {
+                "gps": [
+                    "B85005: Shepley Health Centre",
+                    "B85022: Honley Surgery",
+                    "B85061: Skelmanthorpe Family Doctors",
+                    "B85026: Kirkburton Health Centre",
+                ],
+                "icb": "NHS West Yorkshire ICB",
+            }
+        st.session_state.places = ["Default Place"]
         st.session_state.after = "Default Place"
         st.warning(
             "All places deleted. 'Default Place' reset to default. Please create a new place."
