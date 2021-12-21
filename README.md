@@ -37,7 +37,13 @@ To run the tool locally, in the terminal, whilst in the directory containing the
 streamlit run dashboard.py
 ```
 
-Streamlit will then render the tool and display it in your default web browser. When run in this way, any changes to the script in your editor will change the app running locally.
+Streamlit will then render the tool and display it in your default web browser at
+
+```bash
+http://localhost:8501/
+```
+
+When run in this way, any changes to the script in your editor will change the app running locally.
 
 More information about Streamlit can be found from the following link:
 https://docs.streamlit.io/en/stable/
