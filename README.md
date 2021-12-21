@@ -10,22 +10,19 @@ The tool allows a new 'place' to be defined in an ICB as a cluster of GP practic
 
 ## Deployment (local)
 
-The tool has been built using Streamlit, a Python app framework that can be used to create web apps. It can be installed by using the package manager pip.
-
-```bash
-pip install streamlit
-```
+The tool has been built using Streamlit, a Python app framework that can be used to create web apps. To deploy the streamlit app locally:
 
 The project virtual environment can be activated in bash using the following command
 
 ```bash
-source venv/bin/activate
+python3 -m venv <path to virtual env>
+source <path to virtual env>/bin/activate
 ```
 
 To activate the virtual environment in Windows the following command can be used
 
 ```shell
-venv\Scripts\activate
+<path to virtual env>\Scripts\activate
 ```
 
 To explicitly install all the prerequisite packages to run the tool's script, in the terminal run the following command:
