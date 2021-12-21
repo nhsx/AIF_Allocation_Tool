@@ -200,18 +200,15 @@ place_name = st.sidebar.text_input(
 )
 
 if st.sidebar.button("Save Place", help="Save place to session data"):
-    if practice_choice == []:
-        st.sidebar.error("Please select one or more GP practices")
-    if place_name == "Default Place":
-        st.sidebar.error(
-            "Please rename your place to something other than 'Default Place'"
-        )
+    if practice_choice == [] or place_name == "Default Place":
+        if practice_choice == []:
+            st.sidebar.error("Please select one or more GP practices")
+        if place_name == "Default Place":
+            st.sidebar.error("Please rename your place to something other than 'Default Place'")
     if place_name == "":
         st.sidebar.error("Please give your place a name")
     else:
-        if practice_choice == []:
-            print("")
-        if place_name == "Default Place":
+        if practice_choice == [] or place_name == "Default Place":
             print("")
         else:
             if (
