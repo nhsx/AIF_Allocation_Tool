@@ -56,7 +56,7 @@ st.markdown(
 
 # Set default place in session
 # -------------------------------------------------------------------------
-if "Default Place" not in st.session_state:
+if len(st.session_state) < 1:
     st.session_state["Default Place"] = {
         "gps": [
             "B85005: Shepley Health Centre",
