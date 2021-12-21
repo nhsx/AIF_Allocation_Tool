@@ -1,5 +1,7 @@
 # ICB Place Based Allocation Tool
 
+[![Python v.3.8](https://img.shields.io/badge/python-v3.8-blue.svg)](https://www.python.org/downloads/release/python-380/)
+
 This project is a tool built in Python to assist Integrated Care Boards (ICBs) to perform need based allocation based on defined place. It uses the most recently produced GP Registered Practice Populations as well as the weighted populations calculated from the Allocation model for each of its components. More information on the Allocations process, as well as useful documentation can be found at [https://www.england.nhs.uk/allocations/](https://www.england.nhs.uk/allocations/)
 
 The tool allows a new 'place' to be defined in an ICB as a cluster of GP practices. This allows place to be flexibly defined, whether that is as GP practices in the same Primary Care Network (PCN), Local Authority, or that feed into the same Secondary services for example. That is at the discretion of the ICB. Once GP practices have been allocated to a place, the relative need indices can be calculated and the output can be downloaded as a CSV.
