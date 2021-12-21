@@ -202,8 +202,12 @@ place_name = st.sidebar.text_input(
 if st.sidebar.button("Save Place", help="Save place to session data"):
     if practice_choice == []:
         st.sidebar.error("Please select one or more GP practices")
-    if place_name == 'Default Place':
-        st.sidebar.error("Please rename your place to something other than 'Default Place'")
+    if place_name == "Default Place":
+        st.sidebar.error(
+            "Please rename your place to something other than 'Default Place'"
+        )
+    if place_name == "":
+        st.sidebar.error("Please give your place a name")
     else:
         if [place_name] not in st.session_state:
             st.session_state[place_name] = {
@@ -355,7 +359,9 @@ folium_static(map, width=700, height=300)
 
 # Group GP practice display
 list_of_gps = re.sub(
-    "\w+:", "", str(group_gp_list).replace("'", "").replace("[", "").replace("]", ""),
+    "\w+:",
+    "",
+    str(group_gp_list).replace("'", "").replace("[", "").replace("]", ""),
 )
 st.info("**Selected GP Practices: **" + list_of_gps)
 
@@ -482,9 +488,13 @@ df = df.reset_index(drop=True)
 st.write("**Relative Need Index**")
 cols = st.columns(len(metric_cols))
 for metric, name in zip(metric_cols, metric_names):
-    place_metric, icb_metric = metric_calcs(df, metric,)
+    place_metric, icb_metric = metric_calcs(
+        df,
+        metric,
+    )
     cols[metric_cols.index(metric)].metric(
-        name, place_metric,  # icb_metric, delta_color="inverse"
+        name,
+        place_metric,  # icb_metric, delta_color="inverse"
     )
 
 # Downloads
