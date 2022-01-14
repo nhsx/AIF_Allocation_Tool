@@ -1,0 +1,33 @@
+ICB allocation tool documentation.txt
+
+About the ICB Place Based Allocation Tool
+-----------------------------------------
+This tool is designed to support allocation at places by allowing places to be defined by
+aggregating GPPractices within an ICB.
+
+More information on the latest allocations, including contact details, can be found:
+
+https://www.england.nhs.uk/allocations/
+
+
+Contents of this Folder
+-----------------------
+'ICB allocation calculations.csv' - The need indices are based on estimated need for 2022/23
+by utilising weighted populations projected from the October 2021 GP Registered practice 
+populations.
+
+'ICB allocation tool configuration file.json' - A save file of the AIF tool's configuration 
+when this file was downloaded. To open this session again please select the [Advanced Options]
+checkbox in the AIF tool's sidebar, and drag this file to where it says upload previous
+session data as JSON - [Drag and drop file here].
+
+Please refer to the README.md file on the NHS England GitHub repository for instructions:
+
+https://github.com/nhsx/AIF_Allocation_Tool/blob/map/README.md
+
+Help and Support
+----------------
+For support with Allocations or using the AIF Allocation tool please email: 
+
+england.revenue-allocations@nhs.net
+
