@@ -32,7 +32,6 @@ import streamlit as st
 import pandas as pd
 from streamlit_folium import folium_static
 import folium
-import postcodes_io_api
 
 st.set_page_config(
     page_title="ICB Place Based Allocation Tool",
@@ -120,9 +119,7 @@ aggregations = {
     "Weighted Community pop": "sum",
     "Weighted Mental Health pop": "sum",
     "Weighted Maternity pop": "sum",
-    "Weighted HCHS pop": "sum",
     "Weighted Prescribing pop": "sum",
-    "Weighted Avoidable Mortality pop": "sum",
     "Weighted Health Inequalities pop": "sum",
     "Overall Weighted pop": "sum",
 }
@@ -132,9 +129,7 @@ index_numerator = [
     "Weighted Community pop",
     "Weighted Mental Health pop",
     "Weighted Maternity pop",
-    "Weighted HCHS pop",
     "Weighted Prescribing pop",
-    "Weighted Avoidable Mortality pop",
     "Weighted Health Inequalities pop",
     "Overall Weighted pop",
 ]
@@ -144,9 +139,7 @@ index_names = [
     "Community Index",
     "Mental Health Index",
     "Maternity Index",
-    "HCHS Index",
     "Prescribing Index",
-    "Avoidable Mortality Index",
     "Health Inequalities Index",
     "Overall Index",
 ]
@@ -163,7 +156,7 @@ svg = """
 render_svg(svg)
 
 st.title("ICB Place Based Allocation Tool")
-st.markdown("Last Updated 20th December 2021")
+st.markdown("Last Updated 6th January 2022")
 
 # Import Data
 # -------------------------------------------------------------------------
@@ -185,14 +178,19 @@ if lad_choice == []:
     )
 else:
     practices = (
-        data["practice_display"].loc[data["LA District name"].isin(lad_choice)].tolist()
+        data["practice_display"].loc[(data["LA District name"].isin(lad_choice)) & (data["ICB name"] == icb_choice)].tolist()
     )
 
-practice_choice = st.sidebar.multiselect(
-    "Select GP Practices:",
-    practices,
-    help="Select GP Practices to aggregate into a single defined 'place'",
-)
+select_all_LAD = st.sidebar.checkbox("Select all GP Practices")
+if select_all_LAD:
+    practice_choice = practices
+else:
+    practice_choice = st.sidebar.multiselect(
+        "Select GP Practices:",
+        practices,
+        help="Select GP Practices to aggregate into a single defined 'place'",
+    )
+
 place_name = st.sidebar.text_input(
     "Name your Place",
     "",
@@ -204,7 +202,9 @@ if st.sidebar.button("Save Place", help="Save place to session data"):
         if practice_choice == []:
             st.sidebar.error("Please select one or more GP practices")
         if place_name == "Default Place":
-            st.sidebar.error("Please rename your place to something other than 'Default Place'")
+            st.sidebar.error(
+                "Please rename your place to something other than 'Default Place'"
+            )
     if place_name == "":
         st.sidebar.error("Please give your place a name")
     else:
@@ -351,19 +351,16 @@ group_gp_list = st.session_state[st.session_state.after]["gps"]
 # MAP
 # -------------------------------------------------------------------------
 
-api = postcodes_io_api.Api(debug_http=True)
 map = folium.Map(location=[52, 0], zoom_start=10, tiles="openstreetmap")
 lat = []
 long = []
 for gp in group_gp_list:
-    post_code = data["GP Practice postcode"].loc[data["practice_display"] == gp].item()
-    api_results = api.get_postcode(post_code)
-    latitude = api_results["result"]["latitude"]
-    longitde = api_results["result"]["longitude"]
+    latitude = data["Latitude"].loc[data["practice_display"] == gp].item()
+    longitude = data["Longitude"].loc[data["practice_display"] == gp].item()
     lat.append(latitude)
-    long.append(longitde)
+    long.append(longitude)
     folium.Marker(
-        [latitude, longitde],
+        [latitude, longitude],
         popup=str(gp),
         icon=folium.Icon(color="darkblue", icon="fa-user-md", prefix="fa"),
     ).add_to(map)
@@ -428,29 +425,39 @@ for obj in dict_obj:
 flat_list = [item for sublist in df_list for item in sublist]
 large_df = pd.concat(flat_list, ignore_index=True)
 large_df = large_df.round(decimals=3)
-order = [
-    0,
-    -9,
-    -8,
-    -7,
-    -6,
-    -5,
-    -4,
-    -2,
-    -3,
-    -1,
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-]  # setting column's order
-large_df = large_df[[large_df.columns[i] for i in order]]
+
+
+# "Weighted G&A pop",
+# "Weighted Community pop",
+# "Weighted Mental Health pop",
+# "Weighted Maternity pop",
+# "Weighted Health Inequalities pop",
+# "Weighted Prescribing pop",
+# "Overall Weighted pop",
+
+# order = [
+#     0,
+#     -9,
+#     -8,
+#     -7,
+#     -6,
+#     -5,
+#     -4,
+#     -2,
+#     -3,
+#     -1,
+#     1,
+#     2,
+#     3,
+#     4,
+#     5,
+#     6,
+#     7,
+#     8,
+#     9,
+#     10,
+# ]  # setting column's order
+# large_df = large_df[[large_df.columns[i] for i in order]]
 
 # All metrics - didn't work well, but might be useful
 # for option in dict_obj:
@@ -502,6 +509,7 @@ metric_names = [
 
 df = large_df.loc[large_df["Place / ICB"] == st.session_state.after]
 df = df.reset_index(drop=True)
+
 
 st.write("**Relative Need Index**")
 cols = st.columns(len(metric_cols))
@@ -568,6 +576,9 @@ with st.expander("About the ICB Place Based Allocation Tool"):
         "The Relative Need Index for ICB (i) and Defined Place (p) is given by the formula:"
     )
     st.latex(r""" (WP_p/GP_p)\over (WP_i/GP_i)""")
+    st.markdown(
+        "Where *WP* is the weighted population for a given need and *GP* is the GP practice population."
+    )
     st.markdown(
         "This tool is based on estimated need for 2022/23 by utilising weighted populations projected from the October 2021 GP Registered Practice Populations."
     )
