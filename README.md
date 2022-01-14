@@ -58,6 +58,8 @@ The .streamlit directory contains configuration settings that affect the appeara
 
 For support with using the AIF Allocation tool, or enquiries about the overall allocation process can be directed to: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)
 
+For information on the use of `.JSON` format files, see: [Json Format Primer](https://github.com/nhsengland/AIF_Allocation_Tool/blob/master/docs/json_format_primer.md)
+
 ## Copyright and License
 
 Unless otherwise specified, all content in this repository and any copies are subject to [Crown Copyright](http://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/copyright-and-re-use/crown-copyright/), dual licensed under the [MIT License](./LICENSE) and the [Open Government License v3](./LICENSE).
