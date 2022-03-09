@@ -70,10 +70,8 @@ if "places" not in st.session_state:
 
 # Functions & Calls
 # -------------------------------------------------------------------------
-# aggregate on a query and set of aggregations
 
-
-#Aggregate data. 'name' is the name of the place in the session state, aggregations list is defining how to sum each column, 'on' is what to group it by. Not sure what the 'not in' bit is doing. 
+# aggregate on a query and set of aggregations. 'name' is the name of the place in the session state, aggregations list is defining how to sum each column, 'on' is what to group it by. Not sure what the 'not in' bit is doing. 
 #'query' filters to make sure that GP Display (which is the gp name and code joined together by utils) is in the session state place list
 #outputs filtered data and grouped+filtered data. 
 def aggregate(data, query, name, on, aggregations):
@@ -416,20 +414,11 @@ for place in st.session_state.places:
     )
     icb_indices.insert(loc=0, column="Place / ICB", value=icb_state)
     place_indices.insert(loc=0, column="Place / ICB", value=place)
-    
-    
+        
     if icb_state not in dict_obj:
         dict_obj[icb_state] = [icb_indices, place_indices]
     else:
         dict_obj[icb_state].append(place_indices)
-
-#metric_cols = [
-#    "Overall Index",
-#    "G&A Index",
-#    "Community Index",
-#    "Mental Health Index",
-#    "Maternity Index",
-#]
 
 # add dict values to list
 for obj in dict_obj:
