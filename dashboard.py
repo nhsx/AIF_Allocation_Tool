@@ -71,6 +71,11 @@ if "places" not in st.session_state:
 # Functions & Calls
 # -------------------------------------------------------------------------
 # aggregate on a query and set of aggregations
+
+
+#Aggregate data. 'name' is the name of the place in the session state, aggregations list is defining how to sum each column, 'on' is what to group it by. Not sure what the 'not in' bit is doing. 
+#'query' filters to make sure that GP Display (which is the gp name and code joined together by utils) is in the session state place list
+#outputs filtered data and grouped+filtered data. 
 def aggregate(data, query, name, on, aggregations):
     df = data.query(query)
     if on not in df.columns:
@@ -80,7 +85,9 @@ def aggregate(data, query, name, on, aggregations):
     return df, df_group
 
 
-# calculate index of weighted populations
+# calculate index of weighted populations. Take the groupby output from the aggregator func and divides it by the population number. Do it by icb and place. 
+#place index is divided by icb index to get a relative index number
+#overall index is final_wp / gp pop
 def get_index(place_indices, icb_indices, index_names, index_numerator):
     icb_indices[index_names] = icb_indices[index_numerator].div(
         icb_indices["GP pop"].values, axis=0
@@ -106,7 +113,7 @@ def render_svg(svg):
 def convert_df(df):
     return df.to_csv(index=False).encode("utf-8")
 
-
+#Metric calcs. 
 def metric_calcs(group_need_indices, metric_index):
     place_metric = round(group_need_indices[metric_index][0].astype(float), 2)
     icb_metric = round(place_metric - 1, 2)
@@ -122,6 +129,7 @@ aggregations = {
     "Weighted Prescribing pop": "sum",
     "Weighted Health Inequalities pop": "sum",
     "Overall Weighted pop": "sum",
+    "Weighted Primary Care": "sum",
 }
 
 index_numerator = [
@@ -132,6 +140,7 @@ index_numerator = [
     "Weighted Prescribing pop",
     "Weighted Health Inequalities pop",
     "Overall Weighted pop",
+    "Weighted Primary Care",
 ]
 
 index_names = [
@@ -142,6 +151,7 @@ index_names = [
     "Prescribing Index",
     "Health Inequalities Index",
     "Overall Index",
+    "Primary Care Index",
 ]
 
 # Markdown
@@ -386,6 +396,9 @@ icb_query = "`ICB name` == @icb_state"  # escape column names with backticks htt
 # dict to store all dfs sorted by ICB
 dict_obj = {}
 df_list = []
+
+#FOR EACH PLACE in the SESSION STATE aggregate the data at the ICB and Place level, calculate indices 
+#adds them to a dictionary object
 for place in st.session_state.places:
     place_state = st.session_state[place]["gps"]
     icb_state = st.session_state[place]["icb"]
@@ -403,19 +416,20 @@ for place in st.session_state.places:
     )
     icb_indices.insert(loc=0, column="Place / ICB", value=icb_state)
     place_indices.insert(loc=0, column="Place / ICB", value=place)
-
+    
+    
     if icb_state not in dict_obj:
         dict_obj[icb_state] = [icb_indices, place_indices]
     else:
         dict_obj[icb_state].append(place_indices)
 
-metric_cols = [
-    "Overall Index",
-    "G&A Index",
-    "Community Index",
-    "Mental Health Index",
-    "Maternity Index",
-]
+#metric_cols = [
+#    "Overall Index",
+#    "G&A Index",
+#    "Community Index",
+#    "Mental Health Index",
+#    "Maternity Index",
+#]
 
 # add dict values to list
 for obj in dict_obj:
@@ -425,7 +439,6 @@ for obj in dict_obj:
 flat_list = [item for sublist in df_list for item in sublist]
 large_df = pd.concat(flat_list, ignore_index=True)
 large_df = large_df.round(decimals=3)
-
 
 # "Weighted G&A pop",
 # "Weighted Community pop",
@@ -488,13 +501,13 @@ large_df = large_df.round(decimals=3)
 
 # Metrics
 # -------------------------------------------------------------------------
+#Main Row
 metric_cols = [
     "G&A Index",
     "Community Index",
     "Mental Health Index",
     "Maternity Index",
     "Prescribing Index",
-    "Health Inequalities Index",
     "Overall Index",
 ]
 metric_names = [
@@ -503,8 +516,7 @@ metric_names = [
     "Mental Health",
     "Maternity",
     "Prescribing",
-    "Health Inequal",
-    "Overall Index",
+    "Overall Core",
 ]
 
 df = large_df.loc[large_df["Place / ICB"] == st.session_state.after]
@@ -522,6 +534,16 @@ for metric, name in zip(metric_cols, metric_names):
         name,
         place_metric,  # icb_metric, delta_color="inverse"
     )
+
+#primary care row
+place_metric, icb_metric = metric_calcs(df, "Primary Care Index")
+cols = st.columns(6)
+cols[5].metric("Primary Care",place_metric)
+
+#Health Inequals row
+place_metric, icb_metric = metric_calcs(df, "Health Inequalities Index")
+cols = st.columns(6)
+cols[5].metric("Health Inequal",place_metric)
 
 # Downloads
 # -------------------------------------------------------------------------
