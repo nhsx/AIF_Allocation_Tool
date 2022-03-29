@@ -70,10 +70,10 @@ if "places" not in st.session_state:
 
 # Functions & Calls
 # -------------------------------------------------------------------------
-
-# aggregate on a query and set of aggregations. 'name' is the name of the place in the session state, aggregations list is defining how to sum each column, 'on' is what to group it by. Not sure what the 'not in' bit is doing. 
-#'query' filters to make sure that GP Display (which is the gp name and code joined together by utils) is in the session state place list
-#outputs filtered data and grouped+filtered data. 
+# aggregate on a query and set of aggregations
+#Name is the name of the place in the session state, 'aggregations' tells it how to sum each column, 'on' is what to group it by. Not sure what the not in bit is doing. 
+#Query filters to make sure that GP Display (which is the gp name and code joined together by utils) is in the session state place list
+# Function outputs filtered data and grouped, filtered data separately
 def aggregate(data, query, name, on, aggregations):
     df = data.query(query)
     if on not in df.columns:
@@ -83,8 +83,9 @@ def aggregate(data, query, name, on, aggregations):
     return df, df_group
 
 
-# calculate index of weighted populations. Take the groupby output from the aggregator func and divides it by the population number. Do it by icb and place. 
-#place index is divided by icb index to get a relative index number
+#Calculate index of weighted populations. Take the groupby output fromn the aggregator and divides it by the population number. Do it by icb and place. 
+#get_index(place_groupby, icb_groupby, index_names, index_numerator)
+#place index is divided by icb index to get a relative number
 #overall index is final_wp / gp pop
 def get_index(place_indices, icb_indices, index_names, index_numerator):
     icb_indices[index_names] = icb_indices[index_numerator].div(
@@ -125,9 +126,9 @@ aggregations = {
     "Weighted Mental Health pop": "sum",
     "Weighted Maternity pop": "sum",
     "Weighted Prescribing pop": "sum",
-    "Weighted Health Inequalities pop": "sum",
     "Overall Weighted pop": "sum",
     "Weighted Primary Care": "sum",
+    "Weighted Health Inequalities pop": "sum",
 }
 
 index_numerator = [
@@ -136,9 +137,9 @@ index_numerator = [
     "Weighted Mental Health pop",
     "Weighted Maternity pop",
     "Weighted Prescribing pop",
-    "Weighted Health Inequalities pop",
     "Overall Weighted pop",
     "Weighted Primary Care",
+    "Weighted Health Inequalities pop",
 ]
 
 index_names = [
@@ -147,9 +148,9 @@ index_names = [
     "Mental Health Index",
     "Maternity Index",
     "Prescribing Index",
-    "Health Inequalities Index",
-    "Overall Index",
+    "Overall Core Index",
     "Primary Care Index",
+    "Health Inequalities Index",
 ]
 
 # Markdown
@@ -414,7 +415,7 @@ for place in st.session_state.places:
     )
     icb_indices.insert(loc=0, column="Place / ICB", value=icb_state)
     place_indices.insert(loc=0, column="Place / ICB", value=place)
-        
+    
     if icb_state not in dict_obj:
         dict_obj[icb_state] = [icb_indices, place_indices]
     else:
@@ -497,7 +498,7 @@ metric_cols = [
     "Mental Health Index",
     "Maternity Index",
     "Prescribing Index",
-    "Overall Index",
+    "Overall Core Index",
 ]
 metric_names = [
     "Gen & Acute",
