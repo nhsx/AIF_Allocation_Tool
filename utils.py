@@ -36,6 +36,7 @@ def get_data():
             "Health Ineq WP": "Weighted Health Inequalities pop",
             "Prescr WP": "Weighted Prescribing pop",
             "Final WP": "Overall Weighted pop",
+            "Primary Care": "Weighted Primary Care",
         }
     )
     df = df.fillna(1).replace(0, 1)
