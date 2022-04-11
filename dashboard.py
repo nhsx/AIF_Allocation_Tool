@@ -491,6 +491,10 @@ large_df = large_df.round(decimals=3)
 
 # Metrics
 # -------------------------------------------------------------------------
+
+df = large_df.loc[large_df["Place / ICB"] == st.session_state.after]
+df = df.reset_index(drop=True)
+
 #Main Row
 metric_cols = [
     "G&A Index",
@@ -498,42 +502,42 @@ metric_cols = [
     "Mental Health Index",
     "Maternity Index",
     "Prescribing Index",
-    "Overall Core Index",
 ]
+
 metric_names = [
     "Gen & Acute",
     "Community*",
     "Mental Health",
     "Maternity",
     "Prescribing",
-    "Overall Core",
 ]
 
-df = large_df.loc[large_df["Place / ICB"] == st.session_state.after]
-df = df.reset_index(drop=True)
+#Core Index
+place_metric, icb_metric = metric_calcs(df, "Overall Core Index")
+st.header("Core Index: " + str(place_metric))
 
+with st.expander("Core Sub Indices", expanded  = True):
 
-st.write("**Relative Need Index**")
-cols = st.columns(len(metric_cols))
-for metric, name in zip(metric_cols, metric_names):
-    place_metric, icb_metric = metric_calcs(
-        df,
-        metric,
-    )
-    cols[metric_cols.index(metric)].metric(
-        name,
-        place_metric,  # icb_metric, delta_color="inverse"
-    )
+    cols = st.columns(len(metric_cols))
+    for metric, name in zip(metric_cols, metric_names):
+        place_metric, icb_metric = metric_calcs(
+            df,
+            metric,
+        )
+        cols[metric_cols.index(metric)].metric(
+            name,
+            place_metric,  # icb_metric, delta_color="inverse"
+        )
 
-#primary care row
-place_metric, icb_metric = metric_calcs(df, "Primary Care Index")
-cols = st.columns(6)
-cols[5].metric("Primary Care",place_metric)
+#Primary Care Index
+st.header("Primary Care Index: " + str(place_metric))
+with st.expander("Primary Care Sub Indices", expanded  = True):
+    st.write("None")
 
 #Health Inequals row
 place_metric, icb_metric = metric_calcs(df, "Health Inequalities Index")
-cols = st.columns(6)
-cols[5].metric("Health Inequal",place_metric)
+cols = st.columns([2,3,2])
+cols[1].subheader("Health Inequalities: " +str(place_metric))
 
 # Downloads
 # -------------------------------------------------------------------------
