@@ -495,13 +495,14 @@ large_df = large_df.round(decimals=3)
 df = large_df.loc[large_df["Place / ICB"] == st.session_state.after]
 df = df.reset_index(drop=True)
 
-#Main Row
+#Core Index
 metric_cols = [
     "G&A Index",
     "Community Index",
     "Mental Health Index",
     "Maternity Index",
     "Prescribing Index",
+    "Health Inequalities Index",
 ]
 
 metric_names = [
@@ -510,9 +511,9 @@ metric_names = [
     "Mental Health",
     "Maternity",
     "Prescribing",
+    "Health Inequals",
 ]
 
-#Core Index
 place_metric, icb_metric = metric_calcs(df, "Overall Core Index")
 st.header("Core Index: " + str(place_metric))
 
@@ -530,15 +531,32 @@ with st.expander("Core Sub Indices", expanded  = True):
         )
 
 #Primary Care Index
-st.header("Primary Care Index: " + str(place_metric))
-with st.expander("Primary Care Sub Indices", expanded  = True):
-    st.write("None")
+#Core Index
+metric_cols = [
+    "Primary Care Index",
+    "Health Inequalities Index",
+]
 
-#Health Inequals row
-place_metric, icb_metric = metric_calcs(df, "Health Inequalities Index")
-cols = st.columns([2,3,2])
-cols[1].subheader("Health Inequalities: " +str(place_metric))
+metric_names = [
+    "Primary Medical Care Need*",
+    "Health Inequals",
+]
+place_metric, icb_metric = metric_calcs(df, "Primary Care Index")
+st.header("Primary Medical Care Index: " + str(place_metric))
 
+with st.expander("Primary Medical Care Sub Indices", expanded  = True):
+
+    cols = st.columns(3)
+    for metric, name in zip(metric_cols, metric_names):
+        place_metric, icb_metric = metric_calcs(
+            df,
+            metric,
+        )
+        cols[metric_cols.index(metric)].metric(
+            name,
+            place_metric,  # icb_metric, delta_color="inverse"
+        )
+st.write("*The Primary Medical Care Need Indices will not include the dispensing doctors adjustment – this is applied at ICB level")
 # Downloads
 # -------------------------------------------------------------------------
 current_date = datetime.now().strftime("%Y-%m-%d")
