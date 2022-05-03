@@ -128,6 +128,7 @@ aggregations = {
     "Weighted Prescribing pop": "sum",
     "Overall Weighted pop": "sum",
     "Weighted Primary Care": "sum",
+    "Weighted Primary Medical Care Need": "sum",
     "Weighted Health Inequalities pop": "sum",
 }
 
@@ -139,6 +140,7 @@ index_numerator = [
     "Weighted Prescribing pop",
     "Overall Weighted pop",
     "Weighted Primary Care",
+    "Weighted Primary Medical Care Need",
     "Weighted Health Inequalities pop",
 ]
 
@@ -149,8 +151,10 @@ index_names = [
     "Maternity Index",
     "Prescribing Index",
     "Overall Core Index",
-    "Primary Care Index",
+    "Primary Medical Care Index",
+    "Primary Medical Care Need Index",
     "Health Inequalities Index",
+    
 ]
 
 # Markdown
@@ -491,49 +495,71 @@ large_df = large_df.round(decimals=3)
 
 # Metrics
 # -------------------------------------------------------------------------
-#Main Row
+
+df = large_df.loc[large_df["Place / ICB"] == st.session_state.after]
+df = df.reset_index(drop=True)
+
+#Core Index
 metric_cols = [
     "G&A Index",
     "Community Index",
     "Mental Health Index",
     "Maternity Index",
     "Prescribing Index",
-    "Overall Core Index",
+    "Health Inequalities Index",
 ]
+
 metric_names = [
     "Gen & Acute",
     "Community*",
     "Mental Health",
     "Maternity",
     "Prescribing",
-    "Overall Core",
+    "Health Inequals",
 ]
 
-df = large_df.loc[large_df["Place / ICB"] == st.session_state.after]
-df = df.reset_index(drop=True)
+place_metric, icb_metric = metric_calcs(df, "Overall Core Index")
+st.header("Core Index: " + str(place_metric))
 
+with st.expander("Core Sub Indices", expanded  = True):
 
-st.write("**Relative Need Index**")
-cols = st.columns(len(metric_cols))
-for metric, name in zip(metric_cols, metric_names):
-    place_metric, icb_metric = metric_calcs(
-        df,
-        metric,
-    )
-    cols[metric_cols.index(metric)].metric(
-        name,
-        place_metric,  # icb_metric, delta_color="inverse"
-    )
+    cols = st.columns(len(metric_cols))
+    for metric, name in zip(metric_cols, metric_names):
+        place_metric, icb_metric = metric_calcs(
+            df,
+            metric,
+        )
+        cols[metric_cols.index(metric)].metric(
+            name,
+            place_metric,  # icb_metric, delta_color="inverse"
+        )
 
-#primary care row
-place_metric, icb_metric = metric_calcs(df, "Primary Care Index")
-cols = st.columns(6)
-cols[5].metric("Primary Care",place_metric)
+#Primary Care Index
+#Core Index
+metric_cols = [
+    "Primary Medical Care Need Index",
+    "Health Inequalities Index",
+]
 
-#Health Inequals row
-place_metric, icb_metric = metric_calcs(df, "Health Inequalities Index")
-cols = st.columns(6)
-cols[5].metric("Health Inequal",place_metric)
+metric_names = [
+    "Primary Medical Care Need**",
+    "Health Inequals",
+]
+place_metric, icb_metric = metric_calcs(df, "Primary Medical Care Index")
+st.header("Primary Medical Care Index: " + str(place_metric))
+
+with st.expander("Primary Medical Care Sub Indices", expanded  = True):
+
+    cols = st.columns(3)
+    for metric, name in zip(metric_cols, metric_names):
+        place_metric, icb_metric = metric_calcs(
+            df,
+            metric,
+        )
+        cols[metric_cols.index(metric)].metric(
+            name,
+            place_metric,  # icb_metric, delta_color="inverse"
+        )
 
 # Downloads
 # -------------------------------------------------------------------------
@@ -602,6 +628,9 @@ with st.expander("About the ICB Place Based Allocation Tool"):
         "*The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
     )
     st.markdown("")
+    st.markdown(
+        "**The Primary Medical Care Need Indices will not include the dispensing doctors adjustment – this is applied at ICB level"
+        )
 st.info(
     "For support with using the AIF Allocation tool please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)"
 )
