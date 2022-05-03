@@ -149,7 +149,7 @@ index_names = [
     "Maternity Index",
     "Prescribing Index",
     "Overall Core Index",
-    "Primary Care Index",
+    "Primary Medical Care Index",
     "Health Inequalities Index",
 ]
 
@@ -533,15 +533,15 @@ with st.expander("Core Sub Indices", expanded  = True):
 #Primary Care Index
 #Core Index
 metric_cols = [
-    "Primary Care Index",
+    "Primary Medical Care Index",
     "Health Inequalities Index",
 ]
 
 metric_names = [
-    "Primary Medical Care Need*",
+    "Primary Medical Care Need**",
     "Health Inequals",
 ]
-place_metric, icb_metric = metric_calcs(df, "Primary Care Index")
+place_metric, icb_metric = metric_calcs(df, "Primary Medical Care Index")
 st.header("Primary Medical Care Index: " + str(place_metric))
 
 with st.expander("Primary Medical Care Sub Indices", expanded  = True):
@@ -556,7 +556,7 @@ with st.expander("Primary Medical Care Sub Indices", expanded  = True):
             name,
             place_metric,  # icb_metric, delta_color="inverse"
         )
-st.write("*The Primary Medical Care Need Indices will not include the dispensing doctors adjustment – this is applied at ICB level")
+
 # Downloads
 # -------------------------------------------------------------------------
 current_date = datetime.now().strftime("%Y-%m-%d")
@@ -624,6 +624,9 @@ with st.expander("About the ICB Place Based Allocation Tool"):
         "*The Community Services index relates to the half of Community Services that are similarly distributed to district nursing. The published Community Services target allocation is calculated using the Community Services model. This covers 50% of Community Services. The other 50% is distributed through the General & Acute model."
     )
     st.markdown("")
+    st.markdown(
+        "**The Primary Medical Care Need Indices will not include the dispensing doctors adjustment – this is applied at ICB level"
+        )
 st.info(
     "For support with using the AIF Allocation tool please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)"
 )
