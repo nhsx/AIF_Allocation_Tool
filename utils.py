@@ -36,6 +36,7 @@ def get_data():
             "Health Ineq WP": "Weighted Health Inequalities pop",
             "Prescr WP": "Weighted Prescribing pop",
             "Final WP": "Overall Weighted pop",
+            "Primary Medical Care WP": "Weighted Primary Medical Care Need",
             "Final PMC WP": "Weighted Primary Care",
             
 

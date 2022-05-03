@@ -128,6 +128,7 @@ aggregations = {
     "Weighted Prescribing pop": "sum",
     "Overall Weighted pop": "sum",
     "Weighted Primary Care": "sum",
+    "Weighted Primary Medical Care Need": "sum",
     "Weighted Health Inequalities pop": "sum",
 }
 
@@ -139,6 +140,7 @@ index_numerator = [
     "Weighted Prescribing pop",
     "Overall Weighted pop",
     "Weighted Primary Care",
+    "Weighted Primary Medical Care Need",
     "Weighted Health Inequalities pop",
 ]
 
@@ -150,7 +152,9 @@ index_names = [
     "Prescribing Index",
     "Overall Core Index",
     "Primary Medical Care Index",
+    "Primary Medical Care Need Index",
     "Health Inequalities Index",
+    
 ]
 
 # Markdown
@@ -533,7 +537,7 @@ with st.expander("Core Sub Indices", expanded  = True):
 #Primary Care Index
 #Core Index
 metric_cols = [
-    "Primary Medical Care Index",
+    "Primary Medical Care Need Index",
     "Health Inequalities Index",
 ]
 
