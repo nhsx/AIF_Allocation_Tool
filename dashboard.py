@@ -79,7 +79,7 @@ def aggregate(data, query, name, on, aggregations):
     if on not in df.columns:
         df.insert(loc=0, column=on, value=name)
     df_group = df.groupby(on).agg(aggregations)
-    df_group = df_group.astype(int)
+    df_group = df_group.round(0).astype(int)
     return df, df_group
 
 
@@ -519,6 +519,7 @@ metric_names = [
 ]
 
 place_metric, icb_metric = metric_calcs(df, "Overall Core Index")
+place_metric = "{:.2f}".format(place_metric)
 st.header("Core Index: " + str(place_metric))
 
 with st.expander("Core Sub Indices", expanded  = True):
@@ -529,6 +530,7 @@ with st.expander("Core Sub Indices", expanded  = True):
             df,
             metric,
         )
+        place_metric = "{:.2f}".format(place_metric)
         cols[metric_cols.index(metric)].metric(
             name,
             place_metric,  # icb_metric, delta_color="inverse"
@@ -546,6 +548,7 @@ metric_names = [
     "Health Inequals",
 ]
 place_metric, icb_metric = metric_calcs(df, "Primary Medical Care Index")
+place_metric = "{:.2f}".format(place_metric)
 st.header("Primary Medical Care Index: " + str(place_metric))
 
 with st.expander("Primary Medical Care Sub Indices", expanded  = True):
@@ -556,6 +559,7 @@ with st.expander("Primary Medical Care Sub Indices", expanded  = True):
             df,
             metric,
         )
+        place_metric = "{:.2f}".format(place_metric)
         cols[metric_cols.index(metric)].metric(
             name,
             place_metric,  # icb_metric, delta_color="inverse"
