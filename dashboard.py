@@ -522,6 +522,7 @@ metric_names = [
 place_metric, icb_metric = metric_calcs(df, "Overall Core Index")
 place_metric = "{:.2f}".format(place_metric)
 st.header("Core Index: " + str(place_metric))
+st.caption("For relative weighting of components, see the 2nd rows in [workbook J](https://www.england.nhs.uk/wp-content/uploads/2022/04/j-overall-weighted-populations-22-23.xlsx) tabs 'ICB weighted population' and 'GP weighted population'.")
 
 with st.expander("Core Sub Indices", expanded  = True):
 
@@ -545,12 +546,13 @@ metric_cols = [
 ]
 
 metric_names = [
-    "Primary Medical Care Need**",
+    "Primary Medical Care Need***",
     "Health Inequals",
 ]
 place_metric, icb_metric = metric_calcs(df, "Primary Medical Care Index")
 place_metric = "{:.2f}".format(place_metric)
 st.header("Primary Medical Care Index: " + str(place_metric))
+st.caption("Based on weighted populations from the formula for ICB allocations, not the global sum weighted populations**")
 
 with st.expander("Primary Medical Care Sub Indices", expanded  = True):
 
@@ -634,8 +636,12 @@ with st.expander("About the ICB Place Based Allocation Tool"):
     )
     st.markdown("")
     st.markdown(
-        "**The Primary Medical Care Need Indices will not include the dispensing doctors adjustment – this is applied at ICB level"
+        "**The global sum weighted populations are calculated using the Carr-Hill formula. The global sum weighted populations are a key component of payments to GP practices under the GMS contract. Funding GP practices is part of ICB’s commissioning responsibilities."
         )
+    st.markdown("")
+    st.markdown(
+        "***The Primary Medical Care Need Indices will not include the dispensing doctors adjustment – this is applied at ICB level."
+        )        
 st.info(
     "For support with using the AIF Allocation tool please email: [england.revenue-allocations@nhs.net](mailto:england.revenue-allocations@nhs.net)"
 )
@@ -645,3 +651,5 @@ st.info(
 if see_session_data:
     st.subheader("Session Data")
     st.session_state
+
+
