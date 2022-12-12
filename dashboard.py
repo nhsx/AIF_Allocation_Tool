@@ -172,12 +172,20 @@ st.title("ICB Place Based Allocation Tool")
 st.title("TEST VERSION")
 st.markdown("Last Updated 18th May 2022")
 
+# SIDEBAR Prologuge (have to run before loading data)
+# -------------------------------------------------------------------------
+
+datasets = {"data/wp_data_2022LAD.csv": "2022", "data/wp_data_2023LAD.csv": "2023"}
+
+selected_dataset = st.sidebar.selectbox("Time Period:", options = list(datasets.keys()), help="Select a time period", format_func=lambda x:datasets[ x ])
+
+
 # Import Data
 # -------------------------------------------------------------------------
-data = utils.get_data()
+data = utils.get_data(selected_dataset)
 icb = utils.get_sidebar(data)
 
-# SIDEBAR
+# SIDEBAR Main
 # -------------------------------------------------------------------------
 st.sidebar.subheader("Create New Place")
 

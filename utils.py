@@ -5,8 +5,7 @@ import pandas as pd
 
 # Load data and cache
 @st.cache  # use Streamlit cache decorator to cache this operation so data doesn't have to be read in everytime script is re-run
-def get_data():
-    path = "data/wp_data_2022LAD.csv"  # file containing the gp practice weighted populations
+def get_data(path):
     df = pd.read_csv(path)
     df = df.rename(
         columns={
