@@ -23,6 +23,7 @@ import io
 import zipfile
 import regex as re
 from datetime import datetime
+import os
 
 # local
 import utils
@@ -172,18 +173,23 @@ st.title("ICB Place Based Allocation Tool")
 st.title("TEST VERSION")
 st.markdown("Last Updated 18th May 2022")
 
-# SIDEBAR Prologuge (have to run before loading data)
+# SIDEBAR Prologue (have to run before loading data)
 # -------------------------------------------------------------------------
 
-datasets = {"data/wp_data_2022LAD.csv": "2022", "data/wp_data_2023LAD.csv": "2023"}
+datasets = os.listdir('data/')
 
-selected_dataset = st.sidebar.selectbox("Time Period:", options = list(datasets.keys()), help="Select a time period", format_func=lambda x:datasets[ x ])
+selected_dataset = st.sidebar.selectbox("Time Period:", options = datasets, help="Select a time period", format_func=lambda x : x.replace('.csv','').replace('_','/'))
 
 
 # Import Data
 # -------------------------------------------------------------------------
-data = utils.get_data(selected_dataset)
+data_loaded = utils.get_data('data/' + selected_dataset)
+
+data = data_loaded.copy()
+
+
 icb = utils.get_sidebar(data)
+
 
 # SIDEBAR Main
 # -------------------------------------------------------------------------
@@ -409,12 +415,19 @@ icb_query = "`ICB name` == @icb_state"  # escape column names with backticks htt
 dict_obj = {}
 df_list = []
 
+
+
 #FOR EACH PLACE in the SESSION STATE aggregate the data at the ICB and Place level, calculate indices 
 #adds them to a dictionary object
+
+data[data['GP Practice code']=='J81083']['GP pop']
+
+
 for place in st.session_state.places:
     place_state = st.session_state[place]["gps"]
     icb_state = st.session_state[place]["icb"]
-    # get place aggregations
+        
+        # get place aggregations
     place_data, place_groupby = aggregate(
         data, gp_query, place, "Place Name", aggregations
     )
@@ -422,13 +435,15 @@ for place in st.session_state.places:
     icb_data, icb_groupby = aggregate(
         data, icb_query, icb_state, "ICB name", aggregations
     )
+
+
     # index calcs
     place_indices, icb_indices = get_index(
         place_groupby, icb_groupby, index_names, index_numerator
     )
     icb_indices.insert(loc=0, column="Place / ICB", value=icb_state)
     place_indices.insert(loc=0, column="Place / ICB", value=place)
-    
+
     if icb_state not in dict_obj:
         dict_obj[icb_state] = [icb_indices, place_indices]
     else:

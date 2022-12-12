@@ -4,8 +4,9 @@ from st_aggrid import AgGrid
 import pandas as pd
 
 # Load data and cache
-@st.cache  # use Streamlit cache decorator to cache this operation so data doesn't have to be read in everytime script is re-run
+@st.cache()  # use Streamlit cache decorator to cache this operation so data doesn't have to be read in everytime script is re-run
 def get_data(path):
+    print('cache miss')
     df = pd.read_csv(path)
     df = df.rename(
         columns={
