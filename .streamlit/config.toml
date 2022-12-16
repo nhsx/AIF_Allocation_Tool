@@ -1,10 +1,10 @@
 server.enableWebsocketCompression=false
-
+server.enableCORS=false
 [theme]
 base="light"
 primaryColor="#0072CE"
 backgroundColor="#ffffff"
 secondaryBackgroundColor="#e8eef9"
-textColor="#000000"
+textColor="#110111"
 font="sans serif"
 
