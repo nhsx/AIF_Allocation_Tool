@@ -7,4 +7,5 @@ textColor="#000000"
 font="sans serif"
 [server]
 enableWebsocketCompression=false
+enableCORS=false
 
