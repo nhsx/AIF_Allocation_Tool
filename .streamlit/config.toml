@@ -3,7 +3,7 @@ base="light"
 primaryColor="#0072CE"
 backgroundColor="#ffffff"
 secondaryBackgroundColor="#e8eef9"
-textColor="#000000"
+textColor="#011000"
 font="sans serif"
 [server]
 enableWebsocketCompression=false
