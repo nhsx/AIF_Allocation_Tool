@@ -1,8 +1,10 @@
+server.enableCORS=false
+
 [theme]
-base="light"
+base="dark"
 primaryColor="#0072CE"
 backgroundColor="#ffffff"
 secondaryBackgroundColor="#e8eef9"
 textColor="#000000"
 font="sans serif"
-server.enableCORS=false
+
