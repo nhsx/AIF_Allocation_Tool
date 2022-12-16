@@ -1,7 +1,7 @@
-server.enableCORS=false
+server.enableWebsocketCompression=false
 
 [theme]
-base="dark"
+base="light"
 primaryColor="#0072CE"
 backgroundColor="#ffffff"
 secondaryBackgroundColor="#e8eef9"
