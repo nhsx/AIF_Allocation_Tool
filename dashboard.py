@@ -23,6 +23,7 @@ import io
 import zipfile
 import regex as re
 from datetime import datetime
+import os
 
 # local
 import utils
@@ -172,12 +173,25 @@ st.title("ICB Place Based Allocation Tool")
 st.title("TEST VERSION")
 st.markdown("Last Updated 18th May 2022")
 
+# SIDEBAR Prologue (have to run before loading data)
+# -------------------------------------------------------------------------
+
+datasets = os.listdir('data/')
+
+selected_dataset = st.sidebar.selectbox("Time Period:", options = datasets, help="Select a time period", format_func=lambda x : x.replace('.csv','').replace('_','/'))
+
+
 # Import Data
 # -------------------------------------------------------------------------
-data = utils.get_data()
+data_loaded = utils.get_data('data/' + selected_dataset)
+
+data = data_loaded.copy()
+
+
 icb = utils.get_sidebar(data)
 
-# SIDEBAR
+
+# SIDEBAR Main
 # -------------------------------------------------------------------------
 st.sidebar.subheader("Create New Place")
 
@@ -401,12 +415,16 @@ icb_query = "`ICB name` == @icb_state"  # escape column names with backticks htt
 dict_obj = {}
 df_list = []
 
+
+
 #FOR EACH PLACE in the SESSION STATE aggregate the data at the ICB and Place level, calculate indices 
 #adds them to a dictionary object
+
 for place in st.session_state.places:
     place_state = st.session_state[place]["gps"]
     icb_state = st.session_state[place]["icb"]
-    # get place aggregations
+        
+        # get place aggregations
     place_data, place_groupby = aggregate(
         data, gp_query, place, "Place Name", aggregations
     )
@@ -414,13 +432,15 @@ for place in st.session_state.places:
     icb_data, icb_groupby = aggregate(
         data, icb_query, icb_state, "ICB name", aggregations
     )
+
+
     # index calcs
     place_indices, icb_indices = get_index(
         place_groupby, icb_groupby, index_names, index_numerator
     )
     icb_indices.insert(loc=0, column="Place / ICB", value=icb_state)
     place_indices.insert(loc=0, column="Place / ICB", value=place)
-    
+
     if icb_state not in dict_obj:
         dict_obj[icb_state] = [icb_indices, place_indices]
     else:
