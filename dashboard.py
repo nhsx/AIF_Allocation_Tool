@@ -420,9 +420,6 @@ df_list = []
 #FOR EACH PLACE in the SESSION STATE aggregate the data at the ICB and Place level, calculate indices 
 #adds them to a dictionary object
 
-data[data['GP Practice code']=='J81083']['GP pop']
-
-
 for place in st.session_state.places:
     place_state = st.session_state[place]["gps"]
     icb_state = st.session_state[place]["icb"]
