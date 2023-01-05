@@ -195,17 +195,15 @@ else:
         data["practice_display"].loc[(data["LA District name"].isin(lad_choice)) & (data["ICB name"] == icb_choice)].tolist()
     )
 
-select_all_LAD = st.sidebar.button("Select all GP Practices")
+container_one = st.sidebar.container()
 
-if select_all_LAD:
-    st.session_state['blah'] = practices
+if st.sidebar.button("Select all GP Practices"):
+    st.session_state['multiselect_contents'] = practices
 
-st.write(type(st.session_state['blah']))
-
-practice_choice = st.sidebar.multiselect(
+practice_choice = container_one.multiselect(
     "Select GP Practices:",
     practices,
-    key = 'blah',
+    key = 'multiselect_contents',
     help="Select GP Practices to aggregate into a single defined 'place'"
     )
 
