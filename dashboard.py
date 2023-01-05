@@ -182,7 +182,9 @@ icb = utils.get_sidebar(data)
 st.sidebar.subheader("Create New Place")
 
 icb_choice = st.sidebar.selectbox("ICB Filter:", icb, help="Select an ICB")
+
 lad = data["LA District name"].loc[data["ICB name"] == icb_choice].unique().tolist()
+
 lad_choice = st.sidebar.multiselect(
     "Local Authority District Filter:", lad, help="Select a Local Authority District"
 )
@@ -204,7 +206,7 @@ practice_choice = container_one.multiselect(
     "Select GP Practices:",
     practices,
     key = 'multiselect_contents',
-    help="Select GP Practices to aggregate into a single defined 'place'"
+    help="Select GP Practices to aggregate into a single defined 'place'. Start typing the name or code of a GP practice into the box to jump to it."
     )
 
 
