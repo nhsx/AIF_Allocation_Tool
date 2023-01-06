@@ -199,7 +199,7 @@ else:
 
 container_one = st.sidebar.container()
 
-if st.sidebar.button("Select all GP Practices"):
+if st.sidebar.button("Select all"):
     st.session_state['multiselect_contents'] = practices
 
 practice_choice = container_one.multiselect(
