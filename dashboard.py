@@ -169,7 +169,7 @@ svg = """
 """
 render_svg(svg)
 
-st.title("ICB Place Based Allocation Tool")
+st.title("ICB Place Based Allocation Tool 2023/24 and 2024/25")
 st.title("TEST VERSION")
 st.markdown("Last Updated 12th January 2023")
 
