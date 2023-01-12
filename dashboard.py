@@ -382,7 +382,11 @@ group_gp_list = st.session_state[st.session_state.after]["gps"]
 map = folium.Map(location=[52, 0], zoom_start=10, tiles="openstreetmap")
 lat = []
 long = []
+
 for gp in group_gp_list:
+    if ~data["practice_display"].str.contains(gp).any():
+        st.write(f"{gp} is not available in this time period")
+        continue
     latitude = data["Latitude"].loc[data["practice_display"] == gp].item()
     longitude = data["Longitude"].loc[data["practice_display"] == gp].item()
     lat.append(latitude)
@@ -392,6 +396,11 @@ for gp in group_gp_list:
         popup=str(gp),
         icon=folium.Icon(color="darkblue", icon="fa-user-md", prefix="fa"),
     ).add_to(map)
+
+
+if not lat:
+    st.write("No locations in place are available")
+    st.stop()
 
 # bounds method https://stackoverflow.com/a/58185815
 map.fit_bounds(
