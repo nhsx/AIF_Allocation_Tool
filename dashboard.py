@@ -196,7 +196,9 @@ icb = utils.get_sidebar(data)
 st.sidebar.subheader("Create New Place")
 
 icb_choice = st.sidebar.selectbox("ICB Filter:", icb, help="Select an ICB")
+
 lad = data["LA District name"].loc[data["ICB name"] == icb_choice].unique().tolist()
+
 lad_choice = st.sidebar.multiselect(
     "Local Authority District Filter:", lad, help="Select a Local Authority District"
 )
@@ -209,15 +211,19 @@ else:
         data["practice_display"].loc[(data["LA District name"].isin(lad_choice)) & (data["ICB name"] == icb_choice)].tolist()
     )
 
-select_all_LAD = st.sidebar.checkbox("Select all GP Practices")
-if select_all_LAD:
-    practice_choice = practices
-else:
-    practice_choice = st.sidebar.multiselect(
-        "Select GP Practices:",
-        practices,
-        help="Select GP Practices to aggregate into a single defined 'place'",
+container_one = st.sidebar.container()
+
+if st.sidebar.button("Select all"):
+    st.session_state['multiselect_contents'] = practices
+
+practice_choice = container_one.multiselect(
+    "Select GP Practices:",
+    practices,
+    key = 'multiselect_contents',
+    help="Select GP Practices to aggregate into a single defined 'place'. Start typing the name or code of a GP practice into the box to jump to it."
     )
+
+
 
 place_name = st.sidebar.text_input(
     "Name your Place",
