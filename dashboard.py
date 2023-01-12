@@ -171,7 +171,7 @@ render_svg(svg)
 
 st.title("ICB Place Based Allocation Tool")
 st.title("TEST VERSION")
-st.markdown("Last Updated 18th May 2022")
+st.markdown("Last Updated 12th January 2023")
 
 # SIDEBAR Prologue (have to run before loading data)
 # -------------------------------------------------------------------------
@@ -405,7 +405,7 @@ for gp in group_gp_list:
 
 
 if not lat:
-    st.write("No locations in place are available")
+    st.write("No GP Practices in this Place are available in this time period")
     st.stop()
 
 # bounds method https://stackoverflow.com/a/58185815
@@ -453,6 +453,7 @@ for place in st.session_state.places:
     place_indices, icb_indices = get_index(
         place_groupby, icb_groupby, index_names, index_numerator
     )
+
     icb_indices.insert(loc=0, column="Place / ICB", value=icb_state)
     place_indices.insert(loc=0, column="Place / ICB", value=place)
 
