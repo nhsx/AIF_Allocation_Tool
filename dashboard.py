@@ -171,7 +171,7 @@ render_svg(svg)
 
 st.title("ICB Place Based Allocation Tool 2023/24 and 2024/25")
 st.title("TEST VERSION")
-st.markdown("Last Updated 12th January 2023")
+st.markdown("Last Updated 17th January 2023")
 
 # SIDEBAR Prologue (have to run before loading data)
 # -------------------------------------------------------------------------
@@ -179,7 +179,6 @@ st.markdown("Last Updated 12th January 2023")
 datasets = os.listdir('data/')
 
 selected_dataset = st.sidebar.selectbox("Time Period:", options = datasets, help="Select a time period", format_func=lambda x : x.replace('.csv','').replace('_','/'))
-
 
 # Import Data
 # -------------------------------------------------------------------------
@@ -630,7 +629,7 @@ session_state_dump = json.dumps(session_state_dict, indent=4, sort_keys=False)
 zip_buffer = io.BytesIO()
 with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
     for file_name, data in [
-        ("ICB allocation calculations.csv", io.BytesIO(csv)),
+        (f"ICB allocation calculations {selected_dataset}", io.BytesIO(csv)),
         ("ICB allocation tool documentation.txt", readme_text),
         (
             "ICB allocation tool configuration file.json",
@@ -661,7 +660,7 @@ with st.expander("About the ICB Place Based Allocation Tool"):
         "Where *WP* is the weighted population for a given need and *GP* is the GP practice population."
     )
     st.markdown(
-        "This tool is based on estimated need for 2022/23 by utilising weighted populations projected from the October 2021 GP Registered Practice Populations."
+        f"This tool is based on estimated need for 2023/24 and 2024/25 by utilising weighted populations projected from the November 2021 to October 2022 GP Registered practice populations."
     )
     st.markdown(
         "More information on the latest allocations, including contact details, can be found [here](https://www.england.nhs.uk/allocations/)."

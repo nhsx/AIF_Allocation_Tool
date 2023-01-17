@@ -12,9 +12,8 @@ https://www.england.nhs.uk/allocations/
 
 Contents of this Folder
 -----------------------
-'ICB allocation calculations.csv' - The need indices are based on estimated need for 2022/23
-by utilising weighted populations projected from the October 2021 GP Registered practice 
-populations.
+'ICB allocation calculations.csv' - The need indices are based on estimated need for 2023/24 and 2024/25 
+by utilising weighted populations projected from the November 2021 to October 2022 GP Registered practice populations.
 
 'ICB allocation tool configuration file.json' - A save file of the AIF tool's configuration 
 when this file was downloaded. To open this session again please select the [Advanced Options]
