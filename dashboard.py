@@ -170,7 +170,6 @@ svg = """
 render_svg(svg)
 
 st.title("ICB Place Based Allocation Tool 2023/24 and 2024/25")
-st.title("TEST VERSION")
 st.markdown("Last Updated 17th January 2023")
 
 # SIDEBAR Prologue (have to run before loading data)
