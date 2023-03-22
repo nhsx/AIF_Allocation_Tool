@@ -613,7 +613,18 @@ if print_table:
     with st.container():
         utils.write_table(large_df)
 
-csv = convert_df(large_df)
+# csv_header = b'WARNING: this is a warning message'
+
+
+csv_header1 = b"\"PLEASE READ: Below you can find the results for the places you created, and for the ICB they belong to, for the year you selected.\""
+csv_header2 = b"\"Note that the need indices for the places are relative to the ICB (where the ICBs need index = 1.00), while the need index for the ICB is relative to national need (where the national need index = 1.00).\""
+csv_header3 = b"""\"This means that the need indices of the individual places cannot be compared to the need index of the ICB. For more information, see the user guide available from https://www.england.nhs.uk/allocations/ 
+\"
+"""
+
+wf = convert_df(large_df)
+
+full_csv = b'\n'.join([csv_header1, csv_header2, csv_header3,  wf])
 
 with open("docs/ICB allocation tool documentation.txt", "rb") as fh:
     readme_text = io.BytesIO(fh.read())
@@ -628,7 +639,7 @@ session_state_dump = json.dumps(session_state_dict, indent=4, sort_keys=False)
 zip_buffer = io.BytesIO()
 with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
     for file_name, data in [
-        (f"ICB allocation calculations {selected_dataset}", io.BytesIO(csv)),
+        (f"ICB allocation calculations {selected_dataset}", io.BytesIO(full_csv)),
         ("ICB allocation tool documentation.txt", readme_text),
         (
             "ICB allocation tool configuration file.json",
