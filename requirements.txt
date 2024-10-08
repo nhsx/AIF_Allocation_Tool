@@ -3,3 +3,5 @@ streamlit~=1.14.0
 streamlit-aggrid~=0.2.2.post4
 streamlit_folium~=0.4.0
 regex~=2021.11.10
+numpy==1.26.3
+altair==4
